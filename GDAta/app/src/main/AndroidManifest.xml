@@ -25,8 +25,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDFYB2hhuU3NkfwoBtRanaiE1lWS1ww0MQ" />
 
+        <activity android:name=".PlacePickerActivity" >
+        </activity>
     </application>
 
 </manifest>
-
-

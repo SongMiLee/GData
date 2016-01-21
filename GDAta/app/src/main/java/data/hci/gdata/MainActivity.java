@@ -1,6 +1,7 @@
 package data.hci.gdata;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -16,13 +17,19 @@ import android.os.PersistableBundle;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -30,9 +37,11 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     MapFragment mapFragment;
     GoogleMap mMap;
     UiSettings uiSettings;
@@ -55,6 +64,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .addApi(Places.PLACE_DETECTION_API)
                     .build();
         }
 
@@ -136,7 +147,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateUI() {
         mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc"));
+
+        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc");
+        mMap.addMarker(marker);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 19));
     }
 
@@ -145,22 +158,28 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         longitude = location.getLongitude();
         latitude = location.getLatitude();
 
-        Log.d("gps lc", latitude+" "+longitude);
+        Log.d("gps lc", latitude + " " + longitude);
         updateUI();
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         createLocationRequest();
+
+        if(requestMyLoc)
+            startLocationUpdate();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        stopLocationUpdate();
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(ConnectionResult connectionResult) {    }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
     }
 }
