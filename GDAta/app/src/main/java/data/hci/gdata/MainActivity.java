@@ -32,17 +32,18 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     MapFragment mapFragment;
     GoogleMap mMap;
+    UiSettings uiSettings;
 
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
 
-    double latitude=30, longitude=100;
+    Button myLoc;
+    Boolean requestMyLoc = false;
 
-    boolean requestingLocationUpdates=false;
-    Button findLocButton;
+    double latitude = 30, longitude = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,17 +58,29 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .build();
         }
 
-        findLocButton = (Button) findViewById(R.id.btn_loc);
-        findLocButton.setOnClickListener(new View.OnClickListener() {
+        myLoc = (Button)findViewById(R.id.btn_loc);
+        myLoc.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                requestingLocationUpdates =!(requestingLocationUpdates);
-                Log.d("gps", requestingLocationUpdates+"");
+            public void onClick(View v)
+            {
+                requestMyLoc = !(requestMyLoc);
+
+                if(requestMyLoc)
+                {
+                    startLocationUpdate();
+                    Log.d("gps request", requestMyLoc.toString());
+                }
+                else
+                {
+                    stopLocationUpdate();
+                    mMap.clear();
+                    Log.d("gps request", requestMyLoc.toString());
+                }
             }
         });
+
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
     }
 
     @Override
@@ -85,15 +98,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        uiSettings = mMap.getUiSettings();
 
         //마시멜로우 버전 이상일 때만 권한 설정이 적용
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //권한이 없을 때
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             }
-        } else//마시멜로우 이하일때
+        } else {//마시멜로우 이하일때
             mMap.setMyLocationEnabled(true);//현재 위치 버튼 표시
-
+            uiSettings.setZoomControlsEnabled(true);
+        }
     }
 
     protected void createLocationRequest() {
@@ -111,37 +126,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
-    private void updateUI() {
-        mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(R.string.str_location + ""));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 19));
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
+    protected void stopLocationUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             }
         }
-        createLocationRequest();
-        startLocationUpdate();
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        switch (i){
-            case CAUSE_NETWORK_LOST:
-                Log.d("gps cs", "Network Lost");
-                break;
-            case CAUSE_SERVICE_DISCONNECTED:
-                Log.d("gps cs", "Service disconnected");
-                break;
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
+    private void updateUI() {
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc"));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 19));
     }
 
     @Override
@@ -149,8 +145,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         longitude = location.getLongitude();
         latitude = location.getLatitude();
 
-        Log.d("gps", latitude+" "+longitude);
+        Log.d("gps lc", latitude+" "+longitude);
         updateUI();
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+        createLocationRequest();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 }
