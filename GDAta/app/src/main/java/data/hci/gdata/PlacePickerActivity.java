@@ -14,7 +14,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 
 public class PlacePickerActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
+    private static final int PLACE_PICKER_REQUEST = 1;
     GoogleApiClient googleApiClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,10 @@ public class PlacePickerActivity extends AppCompatActivity implements GoogleApiC
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        int PLACE_PICKER_REQUEST = 1;
+        createPickerActivity();
+    }
+
+    protected void createPickerActivity(){
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
         try {

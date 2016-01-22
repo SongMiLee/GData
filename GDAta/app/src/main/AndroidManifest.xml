@@ -23,7 +23,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDFYB2hhuU3NkfwoBtRanaiE1lWS1ww0MQ" />
+            android:value="@string/API_KEY" />
 
         <activity android:name=".PlacePickerActivity" >
         </activity>
