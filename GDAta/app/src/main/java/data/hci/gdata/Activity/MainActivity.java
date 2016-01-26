@@ -134,7 +134,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
+    //자동 검색 완성으로부터 나온 결과 값을 처리하는 함수
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -207,6 +207,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);//정확하게 위치를 찾음
     }
 
+    //장소 업데이트
     protected void startLocationUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -215,6 +216,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
+    //장소 업데이트를 중지시킴
     protected void stopLocationUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -270,6 +272,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnectionFailed(ConnectionResult connectionResult) {    }
 
 
+    //사용자가 지도를 클릭했을 때 처리하는 함수
     @Override
     public void onMapClick(LatLng latLng) {
         longitude = latLng.longitude;

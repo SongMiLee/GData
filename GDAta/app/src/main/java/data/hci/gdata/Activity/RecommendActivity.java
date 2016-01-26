@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -26,6 +28,7 @@ public class RecommendActivity extends AppCompatActivity {
 
     LinearLayoutManager layoutManager;
     RecyclerView recyclerView;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +47,13 @@ public class RecommendActivity extends AppCompatActivity {
 
     }
 
-    //gps 초기화 작업
+    //ui 초기화 작업
     public void init(){
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);//프로그레스 진행 화면을 보여준다.
 
-        layoutManager = new LinearLayoutManager(getApplicationContext());
+        layoutManager = new LinearLayoutManager(getApplicationContext());//아이템의 항목을 배치
         recyclerView.setLayoutManager(layoutManager);
     }
 
@@ -71,8 +76,9 @@ public class RecommendActivity extends AppCompatActivity {
                     items.add(item[i]);
                 }
 
-                RecommendAdapter adapter = new RecommendAdapter(items);
+                RecommendAdapter adapter = new RecommendAdapter(items);//데이터와 아이템에 대한 뷰 생성
                 recyclerView.setAdapter(adapter);
+                progressBar.setVisibility(View.INVISIBLE);//목록이 화면에 나오면 프로그래스 진행 화면을 없애준다.
             }
 
             @Override

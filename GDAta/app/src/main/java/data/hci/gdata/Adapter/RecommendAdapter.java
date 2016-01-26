@@ -1,6 +1,5 @@
 package data.hci.gdata.Adapter;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -13,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -27,10 +25,13 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecommendAdapter.View
     Handler handler;
     Bitmap bitmap=null;
 
+    //Adapter의 생성자
     public RecommendAdapter(List<RecommendItem> recommendItems){
         item = recommendItems;
         handler = new Handler();
     }
+
+    //ViewHolder를 생성
     @Override
     public RecommendAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -40,17 +41,20 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecommendAdapter.View
         return viewHolder;
     }
 
+    //만들어진 ViewHolder에 데이터를 넣는 작업, ListView의 getView와 동일
     @Override
     public void onBindViewHolder(RecommendAdapter.ViewHolder holder, int position) {
         holder.title.setText(item.get(position).getTitle());
         getBitmap(holder, position);
     }
 
+    //img url을 안드로이드에 로딩하기 위한 함수
     public void getBitmap(final RecommendAdapter.ViewHolder holder,final int position){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpURLConnection conn = null;
+                //url로 부터 비트맵을 로드한다.
                 try{
                     URL url = new URL(item.get(position).getImage());
                     conn = (HttpURLConnection) url.openConnection();
@@ -65,6 +69,7 @@ public class RecommendAdapter extends RecyclerView.Adapter<RecommendAdapter.View
                     if(conn != null)
                         conn.disconnect();
                 }
+                //핸들러르 통해 뷰홀더의 이미지 업데이트
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
