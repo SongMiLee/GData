@@ -53,7 +53,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     double latitude = 30, longitude = 100;
     private static final int RADIUS = 100;
-    private static final int PLACE_PICKER_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +69,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .build();
         }
 
+        initUI();
+
+    }
+
+    /**
+     * UI들을 설정한 함수
+     * */
+    protected void initUI(){
         searchBtn = (Button)findViewById(R.id.btn_search);
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,12 +117,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
     }
 
+    /**
+     * 위치 자동 완성
+     * */
     protected void createPickerActivity(){
-        //PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(this);
             startActivityForResult(intent, 1);
@@ -153,6 +160,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onStop();
     }
 
+
+    /**
+     * 지도 초기 상태 설정
+     * */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -186,10 +197,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * 장소 갱신 설정
+     * */
     protected void createLocationRequest() {
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(2000);//기본 2초마다 위치를 찾음
-        locationRequest.setFastestInterval(1000);//빠르게 할 땐 1초마다 찾음.
+        locationRequest.setInterval(5000);//기본 2초마다 위치를 찾음
+        locationRequest.setFastestInterval(2000);//빠르게 할 땐 1초마다 찾음.
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);//정확하게 위치를 찾음
     }
 
@@ -209,6 +223,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
+
+    /**
+     * 화면 업데이트
+     * */
     private void updateUI() {
         mMap.clear();
 
@@ -222,6 +240,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addCircle(circle);
     }
 
+
+    /**
+     * 장소 업데이트
+     * */
     @Override
     public void onLocationChanged(Location location) {
         longitude = location.getLongitude();
