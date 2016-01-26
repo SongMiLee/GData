@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-        <activity android:name=".MainActivity" >
+        <activity android:name=".Activity.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +25,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/API_KEY" />
 
-        <activity android:name=".PlacePickerActivity" >
+        <activity android:name=".Activity.PlacePickerActivity" >
+        </activity>
+        <activity android:name=".Activity.RecommendActivity" >
         </activity>
     </application>
 

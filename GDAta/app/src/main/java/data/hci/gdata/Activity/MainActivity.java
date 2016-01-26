@@ -1,26 +1,14 @@
-package data.hci.gdata;
+package data.hci.gdata.Activity;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Build;
-import android.os.IBinder;
-import android.os.PersistableBundle;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -33,7 +21,6 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceDetectionApi;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
@@ -41,21 +28,15 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.vision.barcode.Barcode;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Iterator;
+import data.hci.gdata.R;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
@@ -67,7 +48,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
 
-    Button myLoc, searchBtn;
+    Button myLoc, searchBtn, recommendBtn;
     Boolean requestMyLoc = false;
 
     double latitude = 30, longitude = 100;
@@ -94,6 +75,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 createPickerActivity();
+            }
+        });
+        recommendBtn = (Button)findViewById(R.id.btn_recommend);
+        recommendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), RecommendActivity.class);
+                intent.putExtra("Latitude", latitude);
+                intent.putExtra("Longitude", longitude);
+                startActivity(intent);
             }
         });
         myLoc = (Button)findViewById(R.id.btn_loc);
