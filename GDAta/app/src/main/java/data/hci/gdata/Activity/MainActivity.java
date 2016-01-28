@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -35,7 +38,18 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.net.URL;
 import java.util.Iterator;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import data.hci.gdata.R;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener,
@@ -50,6 +64,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     Button myLoc, searchBtn, recommendBtn;
     Boolean requestMyLoc = false;
+
+    TextView textview;
+    Document doc = null;
+
 
     double latitude = 30, longitude = 100;
     private static final int RADIUS = 100;
@@ -112,8 +130,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.clear();
                     Log.d("gps request", requestMyLoc.toString());
                 }
+
+                GetXMLTask task = new GetXMLTask();
+                task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx="+latitude+"&gridy="+longitude);
             }
         });
+        textview = (TextView) findViewById(R.id.tv_temp);
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -280,4 +302,52 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("gps touch", longitude+" "+latitude);
         updateUI();
     }
+
+    private class GetXMLTask extends AsyncTask<String, Void, Document> {
+
+        @Override
+        protected Document doInBackground(String... urls) {
+            URL url;
+            try {
+                url = new URL(urls[0]);
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder(); //XML문서 빌더 객체를 생성
+                doc = db.parse(new InputSource(url.openStream())); //XML문서를 파싱한다.
+                doc.getDocumentElement().normalize();
+
+            } catch (Exception e) {
+                Toast.makeText(getBaseContext(), "Parsing Error", Toast.LENGTH_SHORT).show();
+            }
+            return doc;
+        }
+
+        @Override
+        protected void onPostExecute(Document doc) {
+
+            String s = "";
+            //data태그가 있는 노드를 찾아서 리스트 형태로 만들어서 반환
+            NodeList nodeList = doc.getElementsByTagName("data");
+            //data 태그를 가지는 노드를 찾음, 계층적인 노드 구조를 반환
+
+            int i = 0 ;
+            //날씨 데이터를 추출
+            s += "현 위치의 날씨 정보: ";
+            Node node = nodeList.item(i);
+            Element fstElmnt = (Element) node;
+            NodeList nameList  = fstElmnt.getElementsByTagName("temp");
+            Element nameElement = (Element) nameList.item(0);
+            nameList = nameElement.getChildNodes();
+            s += "온도 = "+ ((Node) nameList.item(0)).getNodeValue() +" ,";
+
+            NodeList websiteList = fstElmnt.getElementsByTagName("reh");
+            s += "습도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
+
+
+            textview.setText(s);
+
+            super.onPostExecute(doc);
+        }
+
+
+    }//end inner class - GetXMLTask
 }
