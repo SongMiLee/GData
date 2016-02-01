@@ -138,16 +138,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v)
             {
                 requestMyLoc = !(requestMyLoc);
-                Intent serviceIntent = new Intent(getApplicationContext(), GpsService.class);
                 if(requestMyLoc)
                 {
                     Log.d("gps request", requestMyLoc.toString());
-                    startService(serviceIntent);
+                    startService((new Intent(getApplicationContext(), GpsService.class)));
+                    GpsService.isSend = false;
                 }
                 else
                 {
                     mMap.clear();
-                    stopService(serviceIntent);
+                    GpsService.isSend = false;
                     Log.d("gps request", requestMyLoc.toString());
                 }
 

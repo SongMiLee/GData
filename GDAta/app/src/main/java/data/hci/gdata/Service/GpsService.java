@@ -22,6 +22,8 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
 
+    public static Boolean isSend = true;
+
     public GpsService() {    }
 
     @Override
@@ -52,15 +54,9 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         googleApiClient.connect();
+        isSend = true;
         //return super.onStartCommand(intent, flags, startId);
         return START_NOT_STICKY;
-    }
-
-    @Override
-    public boolean stopService(Intent name) {
-        stopSelf();
-        stopForeground(true);
-        return super.stopService(name);
     }
 
     @Override
@@ -73,7 +69,12 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
         //위도와 경도를 인텐트에 추가한다.
         broadcastIntent.putExtra("Latitude", location.getLatitude());
         broadcastIntent.putExtra("Longitude", location.getLongitude());
-        sendBroadcast(broadcastIntent);//브로드캐스트 인텐트를 보낸다.
+
+        Log.d("gps Service", isSend + "");
+
+        if(isSend)
+            sendBroadcast(broadcastIntent);//브로드캐스트 인텐트를 보낸다.
+
     }
 
     //장소 업데이트
@@ -112,4 +113,5 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
 }
