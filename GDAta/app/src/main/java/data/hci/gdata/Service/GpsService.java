@@ -61,8 +61,6 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("gps Service", location.getLatitude() + " " + location.getLongitude());
-
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(StaticVariable.BROADCAST_GPS);//인텐트 액션 설정
 
@@ -70,10 +68,12 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
         broadcastIntent.putExtra("Latitude", location.getLatitude());
         broadcastIntent.putExtra("Longitude", location.getLongitude());
 
-        Log.d("gps Service", isSend + "");
+        Log.d("gps Service", isSend.toString());
 
-        if(isSend)
+        if(isSend) {
             sendBroadcast(broadcastIntent);//브로드캐스트 인텐트를 보낸다.
+            Log.d("gps Service", location.getLatitude() + " " + location.getLongitude());
+        }
 
     }
 
@@ -101,7 +101,9 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
     @Override
     public void onConnected(Bundle bundle) {
         createLocationRequest();
-        startLocationUpdate();
+
+        if(isSend)
+            startLocationUpdate();
     }
 
     @Override

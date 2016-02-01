@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,6 +68,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     GoogleApiClient googleApiClient;
 
     Button myLoc, searchBtn, recommendBtn;
+    ProgressBar progressBar;
     Boolean requestMyLoc = false;
 
     TextView textview;
@@ -119,7 +121,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 createPickerActivity();
             }
-        });
+        });//검색 버튼시 picker Activity를 부른다.
+
+        progressBar = (ProgressBar)findViewById(R.id.main_progressbar);
 
         //추천 장소 목록 표시
         recommendBtn = (Button)findViewById(R.id.btn_recommend);
@@ -129,7 +133,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 Intent intent = new Intent(getApplicationContext(), RecommendActivity.class);
                 intent.putExtra("Latitude", latitude);
                 intent.putExtra("Longitude", longitude);
-                startActivity(intent);
+                startActivity(intent);//RecommendActivity를 호출
             }
         });
         myLoc = (Button)findViewById(R.id.btn_loc);
@@ -140,15 +144,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 requestMyLoc = !(requestMyLoc);
                 if(requestMyLoc)
                 {
-                    Log.d("gps request", requestMyLoc.toString());
                     startService((new Intent(getApplicationContext(), GpsService.class)));
                     GpsService.isSend = false;
+                    progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
                 }
                 else
                 {
                     mMap.clear();
                     GpsService.isSend = false;
-                    Log.d("gps request", requestMyLoc.toString());
+                    stopService((new Intent(getApplicationContext(), GpsService.class)));
                 }
 
                 GetXMLTask task = new GetXMLTask();
@@ -253,7 +257,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      * */
     private void updateUI() {
         mMap.clear();
-
+        progressBar.setVisibility(View.VISIBLE);
         MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc");
         mMap.addMarker(marker);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));
@@ -262,6 +266,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .strokeColor(Color.RED)
                 .strokeWidth(3);
         mMap.addCircle(circle);
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
