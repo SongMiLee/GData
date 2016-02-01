@@ -1,7 +1,10 @@
 package data.hci.gdata.Activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -50,9 +53,11 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import data.hci.gdata.Global.StaticVariable;
 import data.hci.gdata.R;
+import data.hci.gdata.Service.GpsService;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener,
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
 
     MapFragment mapFragment;
@@ -60,7 +65,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     UiSettings uiSettings;
 
     GoogleApiClient googleApiClient;
-    LocationRequest locationRequest;
 
     Button myLoc, searchBtn, recommendBtn;
     Boolean requestMyLoc = false;
@@ -68,9 +72,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     TextView textview;
     Document doc = null;
 
-
     double latitude = 30, longitude = 100;
-    private static final int RADIUS = 100;
+
+    private IntentFilter intentFilter;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(StaticVariable.BROADCAST_GPS)){
+                latitude = intent.getDoubleExtra("Latitude", latitude);
+                longitude = intent.getDoubleExtra("Longitude", longitude);
+
+                updateUI();//화면 갱신
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +102,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .build();
         }
 
-        initUI();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(StaticVariable.BROADCAST_GPS);//잡을 액션을 명시
 
+        initUI();
+        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     /**
@@ -102,6 +120,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 createPickerActivity();
             }
         });
+
+        //추천 장소 목록 표시
         recommendBtn = (Button)findViewById(R.id.btn_recommend);
         recommendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,16 +138,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v)
             {
                 requestMyLoc = !(requestMyLoc);
-
+                Intent serviceIntent = new Intent(getApplicationContext(), GpsService.class);
                 if(requestMyLoc)
                 {
-                    startLocationUpdate();
                     Log.d("gps request", requestMyLoc.toString());
+                    startService(serviceIntent);
                 }
                 else
                 {
-                    stopLocationUpdate();
                     mMap.clear();
+                    stopService(serviceIntent);
                     Log.d("gps request", requestMyLoc.toString());
                 }
 
@@ -182,6 +202,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onStop();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            if(broadcastReceiver!=null)  unregisterReceiver(broadcastReceiver);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 지도 초기 상태 설정
@@ -200,7 +229,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMapClickListener(this);
             uiSettings.setZoomControlsEnabled(true);
 
-            // 초기 gps
+            // 초기 gps - 최근에 찍었던 장소를 표시해준다.
             PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(googleApiClient, null);
             result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
                 @Override
@@ -220,35 +249,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * 장소 갱신 설정
-     * */
-    protected void createLocationRequest() {
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);//기본 2초마다 위치를 찾음
-        locationRequest.setFastestInterval(2000);//빠르게 할 땐 1초마다 찾음.
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);//정확하게 위치를 찾음
-    }
-
-    //장소 업데이트
-    protected void startLocationUpdate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            }
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-    }
-
-    //장소 업데이트를 중지시킴
-    protected void stopLocationUpdate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            }
-        }
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-    }
-
-
-    /**
      * 화면 업데이트
      * */
     private void updateUI() {
@@ -258,36 +258,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(marker);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));
         CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude))
-                .radius(RADIUS)// 100m 반경의 원을 그린다.
+                .radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
                 .strokeColor(Color.RED)
                 .strokeWidth(3);
         mMap.addCircle(circle);
     }
 
-
-    /**
-     * 장소 업데이트
-     * */
-    @Override
-    public void onLocationChanged(Location location) {
-        longitude = location.getLongitude();
-        latitude = location.getLatitude();
-
-        Log.d("gps lc", latitude + " " + longitude);
-        updateUI();
-    }
-
     @Override
     public void onConnected(Bundle bundle) {
-        createLocationRequest();
-
-        if(requestMyLoc)
-            startLocationUpdate();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        stopLocationUpdate();
     }
 
     @Override

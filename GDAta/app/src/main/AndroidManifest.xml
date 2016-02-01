@@ -25,10 +25,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/API_KEY" />
 
-        <activity android:name=".Activity.PlacePickerActivity" >
-        </activity>
         <activity android:name=".Activity.RecommendActivity" >
         </activity>
+
+        <service
+            android:name=".Service.GpsService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+
+
     </application>
 
 </manifest>
