@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -57,9 +61,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import data.hci.gdata.Global.StaticVariable;
 import data.hci.gdata.R;
 import data.hci.gdata.Service.GpsService;
+import data.hci.gdata.Service.GyroService;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener, SensorEventListener {
 
     MapFragment mapFragment;
     GoogleMap mMap;
@@ -72,7 +77,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     Boolean requestMyLoc = false;
 
     TextView textview;
+    TextView gyroTextView;
     Document doc = null;
+
+    //자이로 센서 사용
+    SensorManager mSensorManager;
+    Sensor gyroSensor;
 
     double latitude = 30, longitude = 100;
 
@@ -93,6 +103,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);   //센서 매니저 사용
+        gyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);    //자이로센서 지정
+        gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
 
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -145,6 +159,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 if(requestMyLoc)
                 {
                     startService((new Intent(getApplicationContext(), GpsService.class)));
+                    startService((new Intent(getApplicationContext(), GyroService.class)));
                     GpsService.isSend = false;
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
                 }
@@ -153,6 +168,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.clear();
                     GpsService.isSend = false;
                     stopService((new Intent(getApplicationContext(), GpsService.class)));
+                    stopService((new Intent(getApplicationContext(), GyroService.class)));
                 }
 
                 GetXMLTask task = new GetXMLTask();
@@ -172,7 +188,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(this);
             startActivityForResult(intent, 1);
-          //  startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+            //  startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException e) {
             e.printStackTrace();
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -286,8 +302,36 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapClick(LatLng latLng) {
         longitude = latLng.longitude;
         latitude = latLng.latitude;
-        Log.d("gps touch", longitude+" "+latitude);
+        Log.d("gps touch", longitude + " " + latitude);
         updateUI();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == gyroSensor.TYPE_GYROSCOPE){
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            String gyroString = "자이로스코프값 : " + "x : " + x + ", y : " + y + ", z : " +z;
+
+            gyroTextView.setText(gyroString);
+        }
+    }
+
+    //리스너 등록
+    protected void onResume(){
+        super.onResume();
+        mSensorManager.registerListener(this,gyroSensor,SensorManager.SENSOR_DELAY_NORMAL);
+    }
+    //리스너 해제
+    protected void onPause(){
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
     private class GetXMLTask extends AsyncTask<String, Void, Document> {
