@@ -34,7 +34,10 @@
             android:exported="false" >
         </service>
 
-        <service android:name=".Service.GyroService"></service>
+        <service android:name=".Service.GyroService"
+            android:enabled="true"
+            android:exported="false"
+            ></service>
     </application>
 
 </manifest>

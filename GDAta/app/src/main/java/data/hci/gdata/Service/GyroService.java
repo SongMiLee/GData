@@ -15,6 +15,8 @@ import android.util.Log;
 
 import java.security.Provider;
 
+import data.hci.gdata.Global.StaticVariable;
+
 public class GyroService extends Service implements SensorEventListener {
 
     SensorManager mSensorManager;
@@ -30,9 +32,7 @@ public class GyroService extends Service implements SensorEventListener {
 
         mSensorManager.registerListener(this,gyroSensor,SensorManager.SENSOR_DELAY_NORMAL);
 
-        return super.onStartCommand(intent,flags,startId);
-
-
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -51,7 +51,16 @@ public class GyroService extends Service implements SensorEventListener {
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
-            Log.d("자이로스코프", "x :" + x + ", y :" + y + ", z :" + z);
+
+            //다른 액티비티들에게 내용을 보낸다.
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction(StaticVariable.BROADCAST_GYRO);
+
+            broadcastIntent.putExtra("x", x);
+            broadcastIntent.putExtra("y", y);
+            broadcastIntent.putExtra("z", z);
+
+            sendBroadcast(broadcastIntent);
         }
     }
 
