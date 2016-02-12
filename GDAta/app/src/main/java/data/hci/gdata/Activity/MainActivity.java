@@ -1,6 +1,7 @@
 package data.hci.gdata.Activity;
 
 import android.Manifest;
+import android.accounts.AccountManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -72,7 +74,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     GoogleApiClient googleApiClient;
 
-    Button myLoc, searchBtn, recommendBtn;
+    Button myLoc, searchBtn, recommendBtn, calendarBtn;
     ProgressBar progressBar;
     Boolean requestMyLoc = false;
 
@@ -139,7 +141,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createPickerActivity();
+               createPickerActivity();
             }
         });//검색 버튼시 picker Activity를 부른다.
 
@@ -159,24 +161,28 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         myLoc = (Button)findViewById(R.id.btn_loc);
         myLoc.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 requestMyLoc = !(requestMyLoc);
-                if(requestMyLoc)
-                {
+                if (requestMyLoc) {
                     startService((new Intent(getApplicationContext(), GpsService.class)));
                     GpsService.isSend = false;
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
-                }
-                else
-                {
+                } else {
                     mMap.clear();
                     GpsService.isSend = false;
                     stopService((new Intent(getApplicationContext(), GpsService.class)));
                 }
 
                 GetXMLTask task = new GetXMLTask();
-                task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx="+latitude+"&gridy="+longitude);
+                task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
+            }
+        });
+
+        calendarBtn = (Button)findViewById(R.id.btn_calendar);
+        calendarBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), CalendarActivity.class));
             }
         });
         textview = (TextView) findViewById(R.id.tv_temp);
@@ -191,7 +197,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void createPickerActivity(){
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(this);
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, StaticVariable.FINDLOCATION);
             //  startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException e) {
             e.printStackTrace();
@@ -200,9 +206,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
     //자동 검색 완성으로부터 나온 결과 값을 처리하는 함수
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
+        if (requestCode == StaticVariable.FINDLOCATION) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, this);
                 Log.d("gps place", place.getAddress()+" "+place.getPlaceTypes());
@@ -212,6 +219,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d("result", longitude+" "+latitude);
             }
         }
+
     }
 
     @Override

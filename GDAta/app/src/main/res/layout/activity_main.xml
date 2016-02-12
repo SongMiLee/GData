@@ -56,4 +56,12 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calendar"
+        android:id="@+id/btn_calendar"
+        android:layout_above="@+id/btn_loc"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
