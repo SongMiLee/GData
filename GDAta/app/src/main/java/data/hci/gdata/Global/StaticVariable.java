@@ -10,5 +10,6 @@ public class StaticVariable {
 
     public static final int FINDLOCATION = 1000;
     public static final int REQUEST_PICK_ACCOUNT = 2000;
+    public static final int REQUEST_AUTHORIZATION = 3000;
 
 }

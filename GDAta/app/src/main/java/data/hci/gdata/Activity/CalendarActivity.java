@@ -1,71 +1,117 @@
 package data.hci.gdata.Activity;
 
+
+import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.content.Intent;
-import android.net.Uri;
-import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CalendarView;
 
-import com.google.android.gms.common.AccountPicker;
-
 import data.hci.gdata.Global.StaticVariable;
+import data.hci.gdata.Oauth.AuthPreferences;
 import data.hci.gdata.R;
 
-public class CalendarActivity extends AppCompatActivity {
-    CalendarView calendarView;
-    CalendarContract.Calendars calendars;//캘린더별 정보, 행마다 캘린더의 세부정보 이름, 색상, 동기화 정보
-    CalendarContract.Instances instances;//이벤트 시작과 종료 시간
-    CalendarContract.Attendees attendees;//이벤트 참석자 정보
-    CalendarContract.Reminders reminders;// 경고/알림 데이터.
 
-    String accountName;
-    String accountType="com.google";
+public class CalendarActivity extends AppCompatActivity  {
+    CalendarView calendarView;
+
+    AccountManager accountManager;
+    AuthPreferences authPreferences;
+
+    private final String SCOPE = "https://www.googleapis.com/auth/googletalk";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        accountManager = AccountManager.get(this);
+        authPreferences = new AuthPreferences(this);
+        if(authPreferences.getUser() != null && authPreferences.getToken() != null)
+            doAuthenticatedStuff();
+        else
+            chooseAccount();
+
         initUI();
-        pickUserAccount();
     }
 
     /**
      * UI 초기화
      * */
-    void initUI(){
-        calendarView = (CalendarView)findViewById(R.id.calendarView);
-
-        Uri uri = CalendarContract.Calendars.CONTENT_URI;
+    void initUI() {
+        calendarView = (CalendarView) findViewById(R.id.calendarView);
 
     }
 
-    private void pickUserAccount(){
-        String[] accountTypes = new String[]{"com.google"};
-        Intent intent = AccountPicker.newChooseAccountIntent(null, null, accountTypes, false, null, null, null, null);
+    private void doAuthenticatedStuff(){ Log.d("Token", authPreferences.getToken());}
+
+    private void chooseAccount(){
+        Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google"}, false, null, null, null, null);
         startActivityForResult(intent, StaticVariable.REQUEST_PICK_ACCOUNT);
+    }
+
+    private void requestToken(){
+        Account userAccount = null;
+        String user = authPreferences.getUser();
+        for(Account account : accountManager.getAccountsByType("com.google")){
+            if(account.name.equals(user))
+                userAccount = account;
+            break;
+        }
+        accountManager.getAuthToken(userAccount, "oauth2:" + SCOPE, null, this, new OnTokenAcquired(), null);
+    }
+
+    private void invalidateToken(){
+        AccountManager accountManager = AccountManager.get(this);
+        accountManager.invalidateAuthToken("com.google", authPreferences.getToken());
+        authPreferences.setToken(null);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == StaticVariable.REQUEST_PICK_ACCOUNT){
-            if(resultCode==RESULT_OK){
-                accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                Log.d("User name", accountName);
-            }
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode){
+            case StaticVariable.REQUEST_AUTHORIZATION:
+                if(resultCode == RESULT_OK)
+                    requestToken();
+                break;
+
+            case StaticVariable.REQUEST_PICK_ACCOUNT:
+                String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                authPreferences.setUser(accountName);
+                invalidateToken();
+
+                requestToken();
+                break;
         }
     }
 
-    /**
-     * 동기화 어댑터
-     * */
-    static Uri asSyncAdapter(Uri uri, String account, String accountType){
-        return uri.buildUpon()
-                .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, account)
-                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, accountType).build();
+    private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
+
+        @Override
+        public void run(AccountManagerFuture<Bundle> result) {
+            try {
+                Bundle bundle = result.getResult();
+
+                Intent launch = (Intent) bundle.get(AccountManager.KEY_INTENT);
+                if (launch != null) {
+                    startActivityForResult(launch, StaticVariable.REQUEST_AUTHORIZATION);
+                } else {
+                    String token = bundle
+                            .getString(AccountManager.KEY_AUTHTOKEN);
+
+                    authPreferences.setToken(token);
+
+                    doAuthenticatedStuff();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
