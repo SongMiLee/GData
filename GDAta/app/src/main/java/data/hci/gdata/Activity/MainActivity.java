@@ -424,7 +424,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void run() {
             while(true) {
-                //Log.d("제발", "떠주세요");
                 calendar = Calendar.getInstance();
                 year = calendar.get(Calendar.YEAR);
                 month = calendar.get(Calendar.MONTH);
