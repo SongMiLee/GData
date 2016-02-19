@@ -378,10 +378,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             NodeList nameList  = fstElmnt.getElementsByTagName("temp");
             Element nameElement = (Element) nameList.item(0);
             nameList = nameElement.getChildNodes();
-            s += "온도 = "+ ((Node) nameList.item(0)).getNodeValue() +" ,";
+            s += "온도 = "+ ((Node) nameList.item(0)).getNodeValue() +",";
 
             NodeList websiteList = fstElmnt.getElementsByTagName("reh");
-            s += "습도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
+            s += "습도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +",";
+
+            NodeList rainList = fstElmnt.getElementsByTagName("r06");
+            s += "강우량 = "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
 
 
             textview.setText(s);
