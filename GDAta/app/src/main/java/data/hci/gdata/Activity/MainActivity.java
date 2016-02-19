@@ -62,6 +62,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import data.hci.gdata.Global.StaticVariable;
 import data.hci.gdata.R;
+import data.hci.gdata.Service.AccelService;
 import data.hci.gdata.Service.GpsService;
 import data.hci.gdata.Service.GyroService;
 
@@ -80,6 +81,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     TextView textview;
     TextView gyroTextView;
+    TextView accelTextView;
     Document doc = null;
 
     double latitude = 30, longitude = 100;
@@ -88,12 +90,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //GPS
             if(intent.getAction().equals(StaticVariable.BROADCAST_GPS)){
                 latitude = intent.getDoubleExtra("Latitude", latitude);
                 longitude = intent.getDoubleExtra("Longitude", longitude);
 
                 updateUI();//화면 갱신
             }
+            //Gyro
             else if(intent.getAction().equals((StaticVariable.BROADCAST_GYRO))){
                 float x = intent.getFloatExtra("x", 0);
                 float y = intent.getFloatExtra("y", 0);
@@ -102,6 +106,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 String gyroString = "자이로스코프값 : " + "x : " + x + ", y : " + y + ", z : " +z;
                 gyroTextView.setText(gyroString);
             }
+            //Accel
+            else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
+                float x = intent.getFloatExtra("x", 0);
+                float y = intent.getFloatExtra("y", 0);
+                float z = intent.getFloatExtra("z", 0);
+
+                accelTextView.setText("가속도 값 : "+"x : "+x+" y : "+y+" z : "+z);
+            }
         }
     };
 
@@ -109,8 +121,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
 
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -126,10 +136,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         intentFilter = new IntentFilter();
         intentFilter.addAction(StaticVariable.BROADCAST_GPS);
         intentFilter.addAction(StaticVariable.BROADCAST_GYRO);
+        intentFilter.addAction(StaticVariable.BROADCAST_ACCEL);
 
         initUI();
 
         startService((new Intent(getApplicationContext(), GyroService.class)));
+        startService((new Intent(getApplicationContext(), AccelService.class)));
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -185,7 +197,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(new Intent(getApplicationContext(), CalendarActivity.class));
             }
         });
-        textview = (TextView) findViewById(R.id.tv_temp);
+
+        textview = (TextView) findViewById(R.id.tv_temp); // 기상청
+        gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
+        accelTextView = (TextView)findViewById(R.id.tv_accel); //엑셀
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
