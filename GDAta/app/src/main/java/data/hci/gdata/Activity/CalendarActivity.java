@@ -12,6 +12,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CalendarView;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -45,6 +47,8 @@ public class CalendarActivity extends AppCompatActivity  {
 
     GoogleAccountCredential credential;
 
+    Button invalidateBtn;
+
     private final String SCOPE = "https://www.googleapis.com/auth/googletalk";
 
     @Override
@@ -53,9 +57,19 @@ public class CalendarActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_calendar);
 
         calendarView = (CalendarView) findViewById(R.id.calendarView);
+        invalidateBtn = (Button)findViewById(R.id.btn_invalidate);
+        invalidateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                invalidateToken();
+                finish();
+            }
+        });
 
         accountManager = AccountManager.get(this);
         authPreferences = new AuthPreferences(this);
+        credential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(StaticVariable.CALENDAR_SCOPES)) //credential 초기화!
+                .setBackOff(new ExponentialBackOff());
         if(authPreferences.getUser() != null && authPreferences.getToken() != null)
             doAuthenticatedStuff();
         else
@@ -66,9 +80,7 @@ public class CalendarActivity extends AppCompatActivity  {
     private void doAuthenticatedStuff(){
         Log.d("Token", authPreferences.getToken());
         //이미 기존의 값이 있다면 기존 값으로 credentail 초기화
-        credential = GoogleAccountCredential.usingOAuth2(getApplicationContext(),  Arrays.asList(StaticVariable.CALENDAR_SCOPES))
-                .setBackOff(new ExponentialBackOff())
-                .setSelectedAccountName(authPreferences.getUser());
+        credential.setSelectedAccountName(authPreferences.getUser());
 
         new MakeRequestTask(credential).execute();
     }
@@ -116,7 +128,7 @@ public class CalendarActivity extends AppCompatActivity  {
                 break;
 
             case StaticVariable.REQUEST_PICK_ACCOUNT://Account를 고르는 요청
-                if(resultCode == RESULT_OK) {
+                if(resultCode == RESULT_OK && data!=null) {
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     credential.setSelectedAccountName(accountName);//선택된 account를 credential에 설정
                     authPreferences.setUser(accountName);
