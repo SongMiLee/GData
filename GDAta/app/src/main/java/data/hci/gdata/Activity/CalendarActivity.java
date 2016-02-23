@@ -202,10 +202,6 @@ public class CalendarActivity extends AppCompatActivity  {
             List<String> eventStrings = new ArrayList<String>();
 
             Events events = service.events().list("primary")
-                    .setMaxResults(10)//최대 10개의 결과를 가져온다.
-                    .setTimeMin(now)//현재 시간 이후로의 데이터.
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
                     .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
 
             List<Event> items = events.getItems();

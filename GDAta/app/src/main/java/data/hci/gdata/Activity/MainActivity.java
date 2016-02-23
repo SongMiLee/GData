@@ -177,7 +177,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               createPickerActivity();
+                createPickerActivity();
             }
         });//검색 버튼시 picker Activity를 부른다.
 
@@ -475,7 +475,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -483,3 +483,4 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }//스레드 끝
 }
+
