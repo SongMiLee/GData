@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.google.android.support\wearable\1.2.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="0e239b45d3b94ac3d759405a9c5fd1f88e53913b">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\classes-14d50b22d9751a6f47b9cedfb4612cee413377e7.jar" />
+    </item>
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.0\jars\libs\internal_impl-23.0.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8bd336eeae661e8311330284897ee07f8ebaa297">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\internal_impl-23.0.0-b532684a0dd0ed1c1884c8bbde2ebbb2b9cd3495.jar" />
+    </item>
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8e673cdfadd8f2d98fdb2fda2285c30f6e449782">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\classes-20c2ddc6ae2750f5e7685817707529dd599a31c5.jar" />
+    </item>
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\22.0.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="c6d79137693d494dee16372d3921f919eb724ced">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\classes-d67bc5f91cc6c2aab046db2229c338ddcbc24ab6.jar" />
+    </item>
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.google.android.gms\play-services-maps\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="04de44f90606c77f3b28cf44861f306290505aac">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\classes-b8bad5619a60e4ffbb0fe2446d2e9d3a6ee392be.jar" />
+    </item>
+    <item
+        jar="C:\SDK\extras\android\m2repository\com\android\support\support-annotations\23.0.0\support-annotations-23.0.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="990e7f98a7bad86a40b1f0bcfeb039023afd0839">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\support-annotations-23.0.0-101966f05382a5b1f4817d33b1dd0e0edbfbe141.jar" />
+    </item>
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="fef2b3e4b6b1b0e5fe7b69fa137a5fa55a3182ab">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\classes-9d6e5bb3e41ff8e0f018441854b5e7b0ca6851ff.jar" />
+    </item>
+    <item
+        jar="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8413c27b45b7fe61dca4a98159f65e2cee215f5a">
+        <dex dex="C:\Users\Public\GData\gdatawatch\wear\build\intermediates\pre-dexed\debug\classes-22a165623c2fd57e0fbae4711b383158bba9ad9c.jar" />
+    </item>
+
+</items>
