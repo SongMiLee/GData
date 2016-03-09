@@ -1,4 +1,4 @@
-package data.hci.gdatawatch;
+package data.hci.gdatawatch.Activity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -8,11 +8,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.DismissOverlayView;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.Button;
 import android.widget.FrameLayout;
+
+import data.hci.gdatawatch.Global.StaticVariable;
+import data.hci.gdatawatch.R;
 
 public class MapsActivity extends Activity implements OnMapReadyCallback,
         GoogleMap.OnMapLongClickListener {
@@ -21,6 +26,9 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
      * Overlay that shows a short help text when first launched. It also provides an option to
      * exit the app.
      */
+    Button sensor;
+
+
     private DismissOverlayView mDismissOverlay;
 
     /**
@@ -35,6 +43,15 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
 
         // Set the layout. It only contains a MapFragment and a DismissOverlay.
         setContentView(R.layout.activity_maps);
+
+        sensor = (Button)findViewById(R.id.btn_sensor);
+        sensor.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), SensorActivity.class));
+            }
+        });
+
 
         // Retrieve the containers for the root of the layout and the map. Margins will need to be
         // set on them to account for the system window insets.

@@ -33,7 +33,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".Activity.MapsActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,6 +41,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Activity.SensorActivity"
+            android:label="@string/app_name" >
+        </activity>
+
+        <service
+            android:name=".Service.GyroService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".Service.AccelService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
