@@ -283,9 +283,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         progressBar.setVisibility(View.VISIBLE);
         MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc");
         mMap.addMarker(marker);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 16));
         CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude))
-                .radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
+                //.radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
                 .strokeColor(Color.RED)
                 .strokeWidth(3);
         mMap.addCircle(circle);

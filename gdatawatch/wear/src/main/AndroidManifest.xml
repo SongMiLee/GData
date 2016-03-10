@@ -48,6 +48,11 @@
         </activity>
 
         <service
+            android:name=".Service.GpsService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
             android:name=".Service.GyroService"
             android:enabled="true"
             android:exported="false" />
