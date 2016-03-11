@@ -25,6 +25,9 @@ import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import java.util.Calendar;
 
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.R;
@@ -44,7 +47,6 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
 
     Boolean requestMyLoc = false;
     double latitude = 30, longitude = 100;
-
 
     private DismissOverlayView mDismissOverlay;
 

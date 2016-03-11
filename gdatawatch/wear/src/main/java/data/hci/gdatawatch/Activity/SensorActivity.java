@@ -21,6 +21,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import java.net.URL;
+import java.util.Calendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,6 +37,22 @@ public class SensorActivity extends Activity {
     TextView gyroTextView;
     TextView accelTextView;
     Document doc = null;
+
+    //시간 관련 변수
+    Calendar calendar = Calendar.getInstance();
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int season;
+    String[] strSeason = {"봄","여름","가을","겨울"};
+    String nowDate;
+    TextView dateTextView;
+
+    //스레드
+    timeRefresh update;
+    Thread Update;
 
     private IntentFilter intentFilter;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -73,6 +90,12 @@ public class SensorActivity extends Activity {
         gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
         accelTextView = (TextView)findViewById(R.id.tv_accel); //엑셀
 
+        //시간텍스트 지정
+        dateTextView = (TextView) findViewById(R.id.tv_date);
+
+        //시간 업데이트
+        Update = new Thread(new timeRefresh());
+        Update.start();
 
         startService((new Intent(getApplicationContext(), GyroService.class)));
         startService((new Intent(getApplicationContext(), AccelService.class)));
@@ -143,5 +166,69 @@ public class SensorActivity extends Activity {
 
 
     }//end inner class - GetXMLTask
+
+    //시간 갱신을 위한 스레드
+    public class timeRefresh implements Runnable {
+        @Override
+        public void run() {
+            while(true) {
+                calendar = Calendar.getInstance();
+                year = calendar.get(Calendar.YEAR);
+                month = calendar.get(Calendar.MONTH);
+                day = calendar.get(Calendar.DAY_OF_MONTH);
+                hour = calendar.get(Calendar.HOUR);
+                minute = calendar.get(Calendar.MINUTE);
+
+                nowDate = year + "/";
+                if (month < 10) {
+                    nowDate += "0";
+                }
+                nowDate += month + "/";
+                if (day < 10) {
+                    nowDate += "0";
+                }
+                nowDate += day + " ";
+                if (hour < 10) {
+                    nowDate += "0";
+                }
+                nowDate += hour + ":";
+                if (minute < 10) {
+                    nowDate += "0";
+                }
+                nowDate += minute;
+
+                switch (month){
+                    case 3:case 4:case 5:
+                        season = 0;
+                        break;
+                    case 6:case 7:case 8:
+                        season = 1;
+                        break;
+                    case 9:case 10:case 11:
+                        season = 2;
+                        break;
+                    default:
+                        season = 3;
+                }
+                nowDate += strSeason[season];
+
+                //     Log.d(nowDate,nowDate);
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        dateTextView.setText(nowDate);
+                    }
+                });
+
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 }
