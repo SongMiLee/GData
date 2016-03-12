@@ -38,7 +38,7 @@ public class SensorActivity extends Activity {
     TextView accelTextView;
     Document doc = null;
 
-    //시간 관련 변수
+    //?�간 관??변??
     Calendar calendar = Calendar.getInstance();
     int year;
     int month;
@@ -46,11 +46,11 @@ public class SensorActivity extends Activity {
     int hour;
     int minute;
     int season;
-    String[] strSeason = {"봄","여름","가을","겨울"};
+    String[] strSeason = {"�?,"?�름","가??,"겨울"};
     String nowDate;
     TextView dateTextView;
 
-    //스레드
+    //?�레??
     timeRefresh update;
     Thread Update;
 
@@ -60,20 +60,20 @@ public class SensorActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             //Gyro
             if(intent.getAction().equals((StaticVariable.BROADCAST_GYRO))){
-                float x = Math.round(intent.getFloatExtra("x", 0));
-                float y = Math.round(intent.getFloatExtra("y", 0));
-                float z = Math.round(intent.getFloatExtra("z", 0));
+                double x = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
+                double y = Math.round(intent.getFloatExtra("y", 0)*10d) / 10d;
+                double z = Math.round(intent.getFloatExtra("z", 0)*10d) / 10d;
 
-                String gyroString = "자이로스코프값 : " + "x : " + x + ", y : " + y + ", z : " +z;
+                String gyroString = "?�이로스코프�?: " + "x : " + x + ", y : " + y + ", z : " +z;
                 gyroTextView.setText(gyroString);
             }
             //Accel
             else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
-                float x = (int)intent.getFloatExtra("x", 0);
-                float y = (int)intent.getFloatExtra("y", 0);
-                float z = (int)intent.getFloatExtra("z", 0);
+                double x = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
+                double y = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
+                double z = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
 
-                accelTextView.setText("가속도 값 : "+"x : "+x+" y : "+y+" z : "+z);
+                accelTextView.setText("가?�도 �?: "+"x : "+x+" y : "+y+" z : "+z);
             }
         }
     };
@@ -86,14 +86,14 @@ public class SensorActivity extends Activity {
         intentFilter.addAction(StaticVariable.BROADCAST_GYRO);
         intentFilter.addAction(StaticVariable.BROADCAST_ACCEL);
 
-        tempview = (TextView) findViewById(R.id.tv_temp); // 기상청
-        gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
-        accelTextView = (TextView)findViewById(R.id.tv_accel); //엑셀
+        tempview = (TextView) findViewById(R.id.tv_temp); // 기상�?
+        gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //?�이�??�스?�뷰 지??
+        accelTextView = (TextView)findViewById(R.id.tv_accel); //?��?
 
-        //시간텍스트 지정
+        //?�간?�스??지??
         dateTextView = (TextView) findViewById(R.id.tv_date);
 
-        //시간 업데이트
+        //?�간 ?�데?�트
         Update = new Thread(new timeRefresh());
         Update.start();
 
@@ -106,11 +106,11 @@ public class SensorActivity extends Activity {
 
     }
 
-    //리스너 등록
+    //리스???�록
     protected void onResume(){
         super.onResume();
     }
-    //리스너 해제
+    //리스???�제
     protected void onPause(){
         super.onPause();
     }
@@ -125,8 +125,8 @@ public class SensorActivity extends Activity {
             try {
                 url = new URL(urls[0]);
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder db = dbf.newDocumentBuilder(); //XML문서 빌더 객체를 생성
-                doc = db.parse(new InputSource(url.openStream())); //XML문서를 파싱한다.
+                DocumentBuilder db = dbf.newDocumentBuilder(); //XML문서 빌더 객체�??�성
+                doc = db.parse(new InputSource(url.openStream())); //XML문서�??�싱?�다.
                 doc.getDocumentElement().normalize();
 
             } catch (Exception e) {
@@ -139,25 +139,25 @@ public class SensorActivity extends Activity {
         protected void onPostExecute(Document doc) {
 
             String s = "";
-            //data태그가 있는 노드를 찾아서 리스트 형태로 만들어서 반환
+            //data?�그가 ?�는 ?�드�?찾아??리스???�태�?만들?�서 반환
             NodeList nodeList = doc.getElementsByTagName("data");
-            //data 태그를 가지는 노드를 찾음, 계층적인 노드 구조를 반환
+            //data ?�그�?가지???�드�?찾음, 계층?�인 ?�드 구조�?반환
 
             int i = 0 ;
-            //날씨 데이터를 추출
-            s += "현 위치의 날씨 정보: ";
+            //?�씨 ?�이?��? 추출
+            s += "???�치???�씨 ?�보: ";
             Node node = nodeList.item(i);
             Element fstElmnt = (Element) node;
             NodeList nameList  = fstElmnt.getElementsByTagName("temp");
             Element nameElement = (Element) nameList.item(0);
             nameList = nameElement.getChildNodes();
-            s += "온도 = "+ ((Node) nameList.item(0)).getNodeValue() +",";
+            s += "?�도 = "+ ((Node) nameList.item(0)).getNodeValue() +",";
 
             NodeList websiteList = fstElmnt.getElementsByTagName("reh");
-            s += "습도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +",";
+            s += "?�도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +",";
 
             NodeList rainList = fstElmnt.getElementsByTagName("r06");
-            s += "강우량 = "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
+            s += "강우??= "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
 
             tempview.setText(s);
 
@@ -167,7 +167,7 @@ public class SensorActivity extends Activity {
 
     }//end inner class - GetXMLTask
 
-    //시간 갱신을 위한 스레드
+    //?�간 갱신???�한 ?�레??
     public class timeRefresh implements Runnable {
         @Override
         public void run() {
