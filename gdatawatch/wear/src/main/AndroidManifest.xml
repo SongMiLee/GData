@@ -13,6 +13,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Account -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <!-- Calendar Read Write -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -44,6 +52,11 @@
 
         <activity
             android:name=".Activity.SensorActivity"
+            android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".Activity.CalenderActivity"
             android:label="@string/app_name" >
         </activity>
 

@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.wearable.view.DismissOverlayView;
 import android.view.View;
@@ -26,12 +27,24 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.net.URL;
 import java.util.Calendar;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.GpsService;
+import data.hci.gdatawatch.Service.GyroService;
 
 public class MapsActivity extends Activity implements OnMapReadyCallback,
         GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
@@ -40,9 +53,11 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
      * Overlay that shows a short help text when first launched. It also provides an option to
      * exit the app.
      */
+    Document doc;
     GoogleApiClient googleApiClient;
 
-    Button sensor,myLoc;
+    TextView tempview;
+    Button sensor,myLoc,calender;
     ProgressBar progressBar;
 
     Boolean requestMyLoc = false;
@@ -80,6 +95,10 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
         progressBar = (ProgressBar)findViewById(R.id.main_progressbar);
         progressBar.setVisibility(View.INVISIBLE);
 
+        tempview = (TextView) findViewById(R.id.tv_temp); // 기상청
+        GetXMLTask task = new GetXMLTask();
+        task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + "59" + " &gridy= " + "125");
+
 
         myLoc = (Button)findViewById(R.id.btn_loc);
         myLoc.setOnClickListener(new View.OnClickListener() {
@@ -95,6 +114,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
                     GpsService.isSend = false;
                     stopService((new Intent(getApplicationContext(), GpsService.class)));
                 }
+
             }
         });
 
@@ -116,6 +136,14 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
                     .addApi(Places.PLACE_DETECTION_API)
                     .build();
         }
+
+        calender = (Button)findViewById(R.id.btn_calender);
+        calender.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), CalenderActivity.class));
+            }
+        });
 
         intentFilter = new IntentFilter();
         intentFilter.addAction(StaticVariable.BROADCAST_GPS);
@@ -160,7 +188,6 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
         mapFragment.getMapAsync(this);
 
 
-
     }
 
 
@@ -174,6 +201,29 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {    }
+
+    @Override
+    protected void onStart() {
+        googleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        googleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            if(broadcastReceiver!=null)  unregisterReceiver(broadcastReceiver);
+            stopService((new Intent(getApplicationContext(), GyroService.class)));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -200,7 +250,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
         progressBar.setVisibility(View.VISIBLE);
         MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc");
         mMap.addMarker(marker);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
         CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude))
                 //.radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
                 .strokeColor(Color.RED)
@@ -208,4 +258,54 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
         mMap.addCircle(circle);
         progressBar.setVisibility(View.INVISIBLE);
     }
+
+    private class GetXMLTask extends AsyncTask<String, Void, Document> {
+
+        @Override
+        protected Document doInBackground(String... urls) {
+            URL url;
+            try {
+                url = new URL(urls[0]);
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder(); //XML문서 빌더 객체를 생성
+                doc = db.parse(new InputSource(url.openStream())); //XML문서를 파싱한다.
+                doc.getDocumentElement().normalize();
+
+            } catch (Exception e) {
+                Toast.makeText(getBaseContext(), "Parsing Error", Toast.LENGTH_SHORT).show();
+            }
+            return doc;
+        }
+
+        @Override
+        protected void onPostExecute(Document doc) {
+
+            String s = "";
+            //data태그가 있는 노드를 찾아서 리스트 형태로 만들어서 반환
+            NodeList nodeList = doc.getElementsByTagName("data");
+            //data 태그를 가지는 노드를 찾음, 계층적인 노드 구조를 반환
+
+            int i = 0 ;
+            //날씨 데이터를 추출
+            s += "현 위치의 날씨 정보: ";
+            Node node = nodeList.item(i);
+            Element fstElmnt = (Element) node;
+            NodeList nameList  = fstElmnt.getElementsByTagName("temp");
+            Element nameElement = (Element) nameList.item(0);
+            nameList = nameElement.getChildNodes();
+            s += "온도 = "+ ((Node) nameList.item(0)).getNodeValue() +",";
+
+            NodeList websiteList = fstElmnt.getElementsByTagName("reh");
+            s += "습도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +",";
+
+            NodeList rainList = fstElmnt.getElementsByTagName("r06");
+            s += "강우량= "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
+
+            tempview.setText(s);
+
+            super.onPostExecute(doc);
+        }
+
+
+    }//end inner class - GetXMLTask
 }

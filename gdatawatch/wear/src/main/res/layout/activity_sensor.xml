@@ -13,8 +13,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/tv_temp"
-        android:layout_below="@id/tv_date" />
+        android:id="@+id/tv_accel"
+        android:layout_gravity="left|bottom"
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,13 +23,5 @@
         android:text="New Text"
         android:id="@+id/tv_gyro"
         android:layout_gravity="left|center_vertical"
-        android:layout_below="@id/tv_temp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/tv_accel"
-        android:layout_gravity="left|bottom"
-        android:layout_below="@id/tv_gyro"/>
+        />
 </FrameLayout>

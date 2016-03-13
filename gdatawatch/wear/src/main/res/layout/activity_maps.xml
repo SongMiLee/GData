@@ -13,18 +13,10 @@
             android:layout_height="match_parent"
             android:name="com.google.android.gms.maps.MapFragment" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sensor_Info"
-            android:id="@+id/btn_sensor"
-            android:layout_gravity="right|top" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/textView"
+            android:id="@+id/tv_temp"
             android:layout_gravity="right|top" />
 
         <ProgressBar
@@ -35,11 +27,28 @@
             android:indeterminate="false" />
 
         <Button
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My_Loc"
+            android:text="L"
             android:id="@+id/btn_loc"
             android:layout_gravity="right|bottom" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="S"
+            android:id="@+id/btn_sensor"
+            android:layout_gravity="center_horizontal|bottom" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C"
+            android:id="@+id/btn_calender"
+            android:layout_gravity="left|bottom" />
 
     </FrameLayout>
 
