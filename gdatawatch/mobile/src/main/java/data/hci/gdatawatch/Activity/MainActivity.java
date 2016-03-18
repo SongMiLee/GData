@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -16,21 +15,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -40,24 +33,17 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import java.net.URL;
-import java.util.Calendar;
 import java.util.Iterator;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import data.hci.gdatawatch.Data.EnvironmentData;
+import data.hci.gdatawatch.Data.TimeData;
 import data.hci.gdatawatch.Global.StaticVariable;
+import data.hci.gdatawatch.Network.GetXMLTask;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
+import data.hci.gdatawatch.Thread.SendEnviro;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
@@ -72,26 +58,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     ProgressBar progressBar;
     Boolean requestMyLoc = false;
 
-    TextView textview;
+    static TextView textview;
     TextView gyroTextView;
     TextView accelTextView;
-    Document doc = null;
 
     //시간관련 변수
-    Calendar calendar = Calendar.getInstance();
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-    int season;
-    String[] strSeason = {"봄","여름","가을","겨울"};
-    String nowDate;
     TextView dateTextView;
 
     //스레드
-    timeRefresh update;
-    Thread Update;
+    EnvironmentData ed;
 
     double latitude = 30, longitude = 100;
 
@@ -105,6 +80,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 longitude = intent.getDoubleExtra("Longitude", longitude);
 
                 updateUI();//화면 갱신
+                ed.setGPS(latitude, longitude);
             }
             //Gyro
             else if(intent.getAction().equals((StaticVariable.BROADCAST_GYRO))){
@@ -114,6 +90,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                 String gyroString = "자이로스코프값 : " + "x : " + x + ", y : " + y + ", z : " +z;
                 gyroTextView.setText(gyroString);
+                ed.setGyro(x, y, z);
             }
             //Accel
             else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
@@ -122,6 +99,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 float z = intent.getFloatExtra("z", 0);
 
                 accelTextView.setText("가속도 값 : "+"x : "+x+" y : "+y+" z : "+z);
+                ed.setAccel(x, y, z);
             }
         }
     };
@@ -147,6 +125,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         intentFilter.addAction(StaticVariable.BROADCAST_GYRO);
         intentFilter.addAction(StaticVariable.BROADCAST_ACCEL);
 
+        ed = new EnvironmentData();
         initUI();
 
         startService((new Intent(getApplicationContext(), GyroService.class)));
@@ -157,8 +136,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         dateTextView = (TextView) findViewById(R.id.tv_date);
 
         //시간 업데이트
-        Update = new Thread(new timeRefresh());
-        Update.start();
+        new Thread(new TimeRefresh()).start();
+        new Thread(new SendEnviro(ed, this)).start();
     }
 
     /**
@@ -193,8 +172,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     stopService((new Intent(getApplicationContext(), GpsService.class)));
                 }
 
-                GetXMLTask task = new GetXMLTask();
-                task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
+                new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
             }
         });
 
@@ -208,13 +186,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         textview = (TextView) findViewById(R.id.tv_temp); // 기상청
         gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
-        accelTextView = (TextView)findViewById(R.id.tv_accel); //엑셀
+        accelTextView = (TextView)findViewById(R.id.tv_accel); //가속도
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
-
 
     @Override
     protected void onStart() {
@@ -314,123 +290,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //리스너 등록
-    protected void onResume(){
-        super.onResume();
-    }
+    protected void onResume(){     super.onResume();    }
     //리스너 해제
-    protected void onPause(){
-        super.onPause();
-    }
+    protected void onPause(){     super.onPause();   }
 
-
-    private class GetXMLTask extends AsyncTask<String, Void, Document> {
-
-        @Override
-        protected Document doInBackground(String... urls) {
-            URL url;
-            try {
-                url = new URL(urls[0]);
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder db = dbf.newDocumentBuilder(); //XML문서 빌더 객체를 생성
-                doc = db.parse(new InputSource(url.openStream())); //XML문서를 파싱한다.
-                doc.getDocumentElement().normalize();
-
-            } catch (Exception e) {
-                Toast.makeText(getBaseContext(), "Parsing Error", Toast.LENGTH_SHORT).show();
-            }
-            return doc;
-        }
-
-        @Override
-        protected void onPostExecute(Document doc) {
-
-            String s = "";
-            //data태그가 있는 노드를 찾아서 리스트 형태로 만들어서 반환
-            NodeList nodeList = doc.getElementsByTagName("data");
-            //data 태그를 가지는 노드를 찾음, 계층적인 노드 구조를 반환
-
-            int i = 0 ;
-            //날씨 데이터를 추출
-            s += "현 위치의 날씨 정보: ";
-            Node node = nodeList.item(i);
-            Element fstElmnt = (Element) node;
-            NodeList nameList  = fstElmnt.getElementsByTagName("temp");
-            Element nameElement = (Element) nameList.item(0);
-            nameList = nameElement.getChildNodes();
-            s += "온도 = "+ ((Node) nameList.item(0)).getNodeValue() +",";
-
-            NodeList websiteList = fstElmnt.getElementsByTagName("reh");
-            s += "습도 = "+  websiteList.item(0).getChildNodes().item(0).getNodeValue() +",";
-
-            NodeList rainList = fstElmnt.getElementsByTagName("r06");
-            s += "강우량 = "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
-
-
-            textview.setText(s);
-
-            super.onPostExecute(doc);
-        }
-
-
-    }//end inner class - GetXMLTask
+    public static void setXMLText(String text){ textview.setText(text);}
 
     //시간 갱신을 위한 스레드
-    public class timeRefresh implements Runnable {
+    public class TimeRefresh implements Runnable {
         @Override
         public void run() {
             while(true) {
-                calendar = Calendar.getInstance();
-                year = calendar.get(Calendar.YEAR);
-                month = calendar.get(Calendar.MONTH);
-                day = calendar.get(Calendar.DAY_OF_MONTH);
-                hour = calendar.get(Calendar.HOUR);
-                minute = calendar.get(Calendar.MINUTE);
-
-                nowDate = year + "/";
-                if (month < 10) {
-                    nowDate += "0";
-                }
-                nowDate += month + "/";
-                if (day < 10) {
-                    nowDate += "0";
-                }
-                nowDate += day + " ";
-                if (hour < 10) {
-                    nowDate += "0";
-                }
-                nowDate += hour + ":";
-                if (minute < 10) {
-                    nowDate += "0";
-                }
-                nowDate += minute;
-
-                switch (month){
-                    case 3:case 4:case 5:
-                        season = 0;
-                        break;
-                    case 6:case 7:case 8:
-                        season = 1;
-                        break;
-                    case 9:case 10:case 11:
-                        season = 2;
-                        break;
-                    default:
-                        season = 3;
-                }
-                nowDate += strSeason[season];
-
-           //     Log.d(nowDate,nowDate);
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        dateTextView.setText(nowDate);
+                    dateTextView.setText(new TimeData().getNowDate());
                     }
                 });
-
-
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(60*1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
