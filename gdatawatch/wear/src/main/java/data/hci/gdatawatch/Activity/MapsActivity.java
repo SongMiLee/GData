@@ -96,8 +96,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
         progressBar.setVisibility(View.INVISIBLE);
 
         tempview = (TextView) findViewById(R.id.tv_temp); // 기상청
-        GetXMLTask task = new GetXMLTask();
-        task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + "59" + " &gridy= " + "125");
+
 
 
         myLoc = (Button)findViewById(R.id.btn_loc);
@@ -114,6 +113,8 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
                     GpsService.isSend = false;
                     stopService((new Intent(getApplicationContext(), GpsService.class)));
                 }
+                GetXMLTask task = new GetXMLTask();
+                task.execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude+ " &gridy= " + longitude);
 
             }
         });
