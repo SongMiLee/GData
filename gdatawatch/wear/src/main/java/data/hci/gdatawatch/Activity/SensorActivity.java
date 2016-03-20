@@ -53,8 +53,8 @@ public class SensorActivity extends Activity {
             //Accel
             else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
                 double x = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
-                double y = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
-                double z = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
+                double y = Math.round(intent.getFloatExtra("y", 0)*10d) / 10d;
+                double z = Math.round(intent.getFloatExtra("z", 0)*10d) / 10d;
 
                 accelTextView.setText("가속도 값: "+"x : "+x+" y : "+y+" z : "+z);
             }
