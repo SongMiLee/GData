@@ -61,8 +61,8 @@ public class AccelService extends Service implements SensorEventListener {
             gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
             float x = (float)mKalmanAccX.update(event.values[0] - gravity[0]);
-            float y = (float)mKalmanAccX.update(event.values[1] - gravity[1]);
-            float z = (float)mKalmanAccX.update(event.values[2] - gravity[2]);
+            float y = (float)mKalmanAccY.update(event.values[1] - gravity[1]);
+            float z = (float)mKalmanAccZ.update(event.values[2] - gravity[2]);
 
             //엑셀 값을 브로드 캐스트로 보낸다.
             Intent broadcastIntent = new Intent();
