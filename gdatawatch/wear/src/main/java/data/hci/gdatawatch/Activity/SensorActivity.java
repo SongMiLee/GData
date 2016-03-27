@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import org.w3c.dom.Document;
 import java.util.Calendar;
 
 import data.hci.gdatawatch.Global.StaticVariable;
@@ -36,6 +35,8 @@ public class SensorActivity extends Activity {
     //스레드
     timeRefresh update;
     Thread Update;
+
+
 
     private IntentFilter intentFilter;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
