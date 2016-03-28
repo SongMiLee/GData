@@ -14,6 +14,7 @@ import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.GyroService;
+import data.hci.gdatawatch.Service.TimeService;
 
 public class SensorActivity extends Activity {
 
@@ -32,10 +33,6 @@ public class SensorActivity extends Activity {
     String nowDate;
     TextView dateTextView;
 
-    //스레드
-    timeRefresh update;
-    Thread Update;
-
 
 
     private IntentFilter intentFilter;
@@ -44,20 +41,24 @@ public class SensorActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             //Gyro
             if(intent.getAction().equals((StaticVariable.BROADCAST_GYRO))){
-                double x = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
-                double y = Math.round(intent.getFloatExtra("y", 0)*10d) / 10d;
-                double z = Math.round(intent.getFloatExtra("z", 0)*10d) / 10d;
+                double x = Math.round(intent.getFloatExtra("x", 0)*100d) / 100d;
+                double y = Math.round(intent.getFloatExtra("y", 0)*100d) / 100d;
+                double z = Math.round(intent.getFloatExtra("z", 0)*100d) / 100d;
 
                 String gyroString = "자이로스코프값: " + "x : " + x + ", y : " + y + ", z : " +z;
                 gyroTextView.setText(gyroString);
             }
             //Accel
             else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
-                double x = Math.round(intent.getFloatExtra("x", 0)*10d) / 10d;
-                double y = Math.round(intent.getFloatExtra("y", 0)*10d) / 10d;
-                double z = Math.round(intent.getFloatExtra("z", 0)*10d) / 10d;
+                double x = Math.round(intent.getFloatExtra("x", 0)*100d) / 100d;
+                double y = Math.round(intent.getFloatExtra("y", 0)*100d) / 100d;
+                double z = Math.round(intent.getFloatExtra("z", 0)*100d) / 100d;
 
                 accelTextView.setText("가속도 값: "+"x : "+x+" y : "+y+" z : "+z);
+            }
+
+            else if(intent.getAction().equals(StaticVariable.BROADCAST_TIME)){
+                dateTextView.setText(intent.getStringExtra("date"));
             }
         }
     };
@@ -69,6 +70,7 @@ public class SensorActivity extends Activity {
         intentFilter = new IntentFilter();
         intentFilter.addAction(StaticVariable.BROADCAST_GYRO);
         intentFilter.addAction(StaticVariable.BROADCAST_ACCEL);
+        intentFilter.addAction(StaticVariable.BROADCAST_TIME);
 
         gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로
         accelTextView = (TextView)findViewById(R.id.tv_accel); //엑셀
@@ -76,15 +78,11 @@ public class SensorActivity extends Activity {
         //시간텍스트
         dateTextView = (TextView) findViewById(R.id.tv_date);
 
-        //시간 업데이트
-        Update = new Thread(new timeRefresh());
-        Update.start();
 
         startService((new Intent(getApplicationContext(), GyroService.class)));
         startService((new Intent(getApplicationContext(), AccelService.class)));
+        startService((new Intent(getApplicationContext(), TimeService.class)));
         registerReceiver(broadcastReceiver, intentFilter);
-
-
 
     }
 
@@ -95,70 +93,6 @@ public class SensorActivity extends Activity {
     //리스???�제
     protected void onPause(){
         super.onPause();
-    }
-
-    //시간 갱신을 위한 스레드
-    public class timeRefresh implements Runnable {
-        @Override
-        public void run() {
-            while(true) {
-                calendar = Calendar.getInstance();
-                year = calendar.get(Calendar.YEAR);
-                month = calendar.get(Calendar.MONTH);
-                day = calendar.get(Calendar.DAY_OF_MONTH);
-                hour = calendar.get(Calendar.HOUR);
-                minute = calendar.get(Calendar.MINUTE);
-
-                nowDate = year + "/";
-                if (month < 10) {
-                    nowDate += "0";
-                }
-                nowDate += month + "/";
-                if (day < 10) {
-                    nowDate += "0";
-                }
-                nowDate += day + " ";
-                if (hour < 10) {
-                    nowDate += "0";
-                }
-                nowDate += hour + ":";
-                if (minute < 10) {
-                    nowDate += "0";
-                }
-                nowDate += minute;
-
-                switch (month){
-                    case 3:case 4:case 5:
-                        season = 0;
-                        break;
-                    case 6:case 7:case 8:
-                        season = 1;
-                        break;
-                    case 9:case 10:case 11:
-                        season = 2;
-                        break;
-                    default:
-                        season = 3;
-                }
-                nowDate += strSeason[season];
-
-                //     Log.d(nowDate,nowDate);
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        dateTextView.setText(nowDate);
-                    }
-                });
-
-
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
 }

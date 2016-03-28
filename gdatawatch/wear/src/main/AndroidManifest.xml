@@ -74,6 +74,11 @@
             android:name=".Service.AccelService"
             android:enabled="true"
             android:exported="false" />
+
+        <service
+            android:name=".Service.TimeService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
