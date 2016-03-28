@@ -65,8 +65,8 @@ public class GyroService extends Service implements SensorEventListener {
             rolling[2] = (z * mFilteringFactor) + (rolling[2] * (1.0f - mFilteringFactor));
 
             x = (float)mKalmanAccX.update(rolling[0]);
-            y = (float)mKalmanAccX.update(rolling[1]);
-            z = (float)mKalmanAccX.update(rolling[2]);
+            y = (float)mKalmanAccY.update(rolling[1]);
+            z = (float)mKalmanAccZ.update(rolling[2]);
 
             //다른 액티비티들에게 내용을 보낸다.
             Intent broadcastIntent = new Intent();
