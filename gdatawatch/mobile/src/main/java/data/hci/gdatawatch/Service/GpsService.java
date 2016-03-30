@@ -5,9 +5,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -41,8 +43,8 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
 
     protected void createLocationRequest() {
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);//기본 5초마다 위치를 찾음
-        locationRequest.setFastestInterval(2000);//빠르게 할 땐 2초마다 찾음.
+        locationRequest.setInterval(1000 * 10);//기본 5초마다 위치를 찾음
+        locationRequest.setFastestInterval(1000 * 5);//빠르게 할 땐 2초마다 찾음.
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);//정확하게 위치를 찾음
     }
 
@@ -81,22 +83,34 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
     //장소 업데이트
     protected void startLocationUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(StaticVariable.GPS_PERMISSION);//인텐트 액션 설정
+                sendBroadcast(broadcastIntent);
             }
-        }else{
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            else
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         }
+        else
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+
     }
 
     //장소 업데이트를 중지시킴
     protected void stopLocationUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(StaticVariable.GPS_PERMISSION);//인텐트 액션 설정
+                sendBroadcast(broadcastIntent);
             }
+            else
+                LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         }
-        else {
+        else
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-        }
     }
 
     @Override

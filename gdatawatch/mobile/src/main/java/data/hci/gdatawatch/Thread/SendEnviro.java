@@ -26,7 +26,7 @@ public class SendEnviro implements Runnable {
         while(true) {
             try {
                 new EnvironmentPostTask().execute(ed.getData());
-                writeData(ed.getData(), context.getApplicationContext());
+                //writeData(ed.getData(), context.getApplicationContext());
                 Thread.sleep(1000*60);
             } catch (InterruptedException e) {
                 e.printStackTrace();

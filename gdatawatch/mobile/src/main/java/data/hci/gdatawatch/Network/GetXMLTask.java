@@ -14,7 +14,7 @@ import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import data.hci.gdatawatch.Activity.MainActivity;
+import data.hci.gdatawatch.Activity.MapActivity;
 
 /**
  * Created by user on 2016-03-18.
@@ -63,7 +63,7 @@ public class GetXMLTask extends AsyncTask<String, Void, Document> {
         s += "강우량 = "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
 
 
-        MainActivity.setXMLText(s);
+        MapActivity.setXMLText(s);
 
         super.onPostExecute(doc);
     }
