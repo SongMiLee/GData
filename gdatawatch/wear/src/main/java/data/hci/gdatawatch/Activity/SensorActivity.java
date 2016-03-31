@@ -6,9 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Calendar;
+import java.util.logging.Handler;
 
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.R;
@@ -22,18 +25,11 @@ public class SensorActivity extends Activity {
     TextView accelTextView;
 
     //시간관련 변수
-    Calendar calendar = Calendar.getInstance();
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-    int season;
-    String[] strSeason = {"봄","여름","가을","겨울"};
-    String nowDate;
     TextView dateTextView;
 
 
+    //test
+    Button data;
 
     private IntentFilter intentFilter;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -47,6 +43,7 @@ public class SensorActivity extends Activity {
 
                 String gyroString = "자이로스코프값: " + "x : " + x + ", y : " + y + ", z : " +z;
                 gyroTextView.setText(gyroString);
+
             }
             //Accel
             else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
@@ -77,6 +74,15 @@ public class SensorActivity extends Activity {
 
         //시간텍스트
         dateTextView = (TextView) findViewById(R.id.tv_date);
+
+        //test
+        data = (Button)findViewById(R.id.bt_data);
+        data.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), DataActivity.class));
+            }
+        });//
 
 
         startService((new Intent(getApplicationContext(), GyroService.class)));

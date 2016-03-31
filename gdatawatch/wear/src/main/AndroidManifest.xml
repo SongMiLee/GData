@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="data.hci.gdatawatch" >
+    package="data.hci.gdatawatch">
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -10,8 +10,8 @@
          location permissions for the 'MyLocation' functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Account -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -26,7 +26,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault" >
+        android:theme="@android:style/Theme.DeviceDefault">
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -42,43 +42,38 @@
 
         <activity
             android:name=".Activity.MapsActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Activity.SensorActivity"
-            android:label="@string/app_name" >
-        </activity>
-
+            android:label="@string/app_name"></activity>
         <activity
             android:name=".Activity.CalenderActivity"
-            android:label="@string/app_name" >
-        </activity>
+            android:label="@string/app_name"></activity>
 
         <service
             android:name=".Service.GpsService"
             android:enabled="true"
             android:exported="false" />
-
         <service
             android:name=".Service.GyroService"
             android:enabled="true"
             android:exported="false" />
-
         <service
             android:name=".Service.AccelService"
             android:enabled="true"
             android:exported="false" />
-
         <service
             android:name=".Service.TimeService"
             android:enabled="true"
             android:exported="false" />
+
+        <activity android:name=".Activity.DataActivity"></activity>
     </application>
 
 </manifest>
