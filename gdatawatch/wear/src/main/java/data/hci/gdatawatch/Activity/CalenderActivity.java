@@ -33,9 +33,9 @@ import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.Oauth.AuthPreferences;
 import data.hci.gdatawatch.R;
 
-/**
- * Created by 송인엽 on 2016-03-13.
- */
+
+
+
 public class CalenderActivity extends Activity {
     CalendarView calendarView;
 
