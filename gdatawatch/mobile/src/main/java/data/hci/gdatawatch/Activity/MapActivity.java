@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Iterator;
 
 import data.hci.gdatawatch.Data.EnvironmentData;
+import data.hci.gdatawatch.Data.PersonalPreference;
 import data.hci.gdatawatch.Data.TimeData;
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.Network.GetXMLTask;
@@ -45,7 +47,7 @@ import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
 import data.hci.gdatawatch.Thread.SendEnviro;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
 
     MapFragment mapFragment;
@@ -75,7 +77,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onReceive(Context context, Intent intent) {
             //GPS
-            if(intent.getAction().equals(StaticVariable.BROADCAST_GPS)){
+            if (intent.getAction().equals(StaticVariable.BROADCAST_GPS)) {
                 latitude = intent.getDoubleExtra("Latitude", latitude);
                 longitude = intent.getDoubleExtra("Longitude", longitude);
 
@@ -83,23 +85,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 ed.setGPS(latitude, longitude);
             }
             //Gyro
-            else if(intent.getAction().equals((StaticVariable.BROADCAST_GYRO))){
+            else if (intent.getAction().equals((StaticVariable.BROADCAST_GYRO))) {
                 float x = intent.getFloatExtra("x", 0);
                 float y = intent.getFloatExtra("y", 0);
                 float z = intent.getFloatExtra("z", 0);
 
-                String gyroString = "자이로스코프값 : " + "x : " + x + ", y : " + y + ", z : " +z;
+                String gyroString = "자이로스코프값 : " + "x : " + x + ", y : " + y + ", z : " + z;
                 gyroTextView.setText(gyroString);
                 ed.setGyro(x, y, z);
             }
             //Accel
-            else if(intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)){
+            else if (intent.getAction().equals(StaticVariable.BROADCAST_ACCEL)) {
                 float x = intent.getFloatExtra("x", 0);
                 float y = intent.getFloatExtra("y", 0);
                 float z = intent.getFloatExtra("z", 0);
 
-                accelTextView.setText("가속도 값 : "+"x : "+x+" y : "+y+" z : "+z);
+                accelTextView.setText("가속도 값 : " + "x : " + x + " y : " + y + " z : " + z);
                 ed.setAccel(x, y, z);
+            } else if (intent.getAction().equals(StaticVariable.GPS_PERMISSION)) {
+                ActivityCompat.requestPermissions(getParent(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, StaticVariable.REQ_PERMISSION_GPS);
             }
         }
     };
@@ -107,7 +111,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_map);
+
+        PersonalPreference pf = new PersonalPreference(this);
+        if(!pf.isData())
+            startActivity(new Intent(this,EnrollDataActivity.class));
 
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -142,12 +150,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * UI들을 설정한 함수
-     * */
-    protected void initUI(){
-        progressBar = (ProgressBar)findViewById(R.id.main_progressbar);
+     */
+    protected void initUI() {
+        progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
 
         //추천 장소 목록 표시
-        recommendBtn = (Button)findViewById(R.id.btn_recommend);
+        recommendBtn = (Button) findViewById(R.id.btn_recommend);
         recommendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,7 +165,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(intent);//RecommendActivity를 호출
             }
         });
-        myLoc = (Button)findViewById(R.id.btn_loc);
+        myLoc = (Button) findViewById(R.id.btn_loc);
         myLoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,7 +184,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        calendarBtn = (Button)findViewById(R.id.btn_calendar);
+        calendarBtn = (Button) findViewById(R.id.btn_calendar);
         calendarBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,8 +193,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         textview = (TextView) findViewById(R.id.tv_temp); // 기상청
-        gyroTextView = (TextView)findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
-        accelTextView = (TextView)findViewById(R.id.tv_accel); //가속도
+        gyroTextView = (TextView) findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
+        accelTextView = (TextView) findViewById(R.id.tv_accel); //가속도
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -207,17 +215,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try{
-            if(broadcastReceiver!=null)  unregisterReceiver(broadcastReceiver);
+        try {
+            if (broadcastReceiver != null) unregisterReceiver(broadcastReceiver);
             stopService((new Intent(getApplicationContext(), GyroService.class)));
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
      * 지도 초기 상태 설정
-     * */
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -226,7 +234,31 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         //마시멜로우 버전 이상일 때만 권한 설정이 적용
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //권한이 없을 때
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(StaticVariable.GPS_PERMISSION);//인텐트 액션 설정
+                sendBroadcast(broadcastIntent);
+            } else {
+                mMap.setOnMapClickListener(this);
+                uiSettings.setZoomControlsEnabled(true);
+
+                // 초기 gps - 최근에 찍었던 장소를 표시해준다.
+                PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(googleApiClient, null);
+                result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+                    @Override
+                    public void onResult(PlaceLikelihoodBuffer placeLikelihoods) {
+                        Iterator<PlaceLikelihood> it = placeLikelihoods.iterator();
+                        while (it.hasNext()) {
+                            PlaceLikelihood temp = it.next();
+                            LatLng tempLat = temp.getPlace().getLatLng();
+                            longitude = tempLat.longitude;
+                            latitude = tempLat.latitude;
+                        }
+                        Log.d("gps init", latitude + " " + longitude);
+                        updateUI();
+                    }
+                });
             }
         } else {//마시멜로우 이하일때
             mMap.setOnMapClickListener(this);
@@ -238,13 +270,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onResult(PlaceLikelihoodBuffer placeLikelihoods) {
                     Iterator<PlaceLikelihood> it = placeLikelihoods.iterator();
-                    while(it.hasNext()){
+                    while (it.hasNext()) {
                         PlaceLikelihood temp = it.next();
                         LatLng tempLat = temp.getPlace().getLatLng();
                         longitude = tempLat.longitude;
                         latitude = tempLat.latitude;
                     }
-                    Log.d("gps init", latitude+" "+longitude);
+                    Log.d("gps init", latitude + " " + longitude);
                     updateUI();
                 }
             });
@@ -253,7 +285,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * 화면 업데이트
-     * */
+     */
     private void updateUI() {
         mMap.clear();
         progressBar.setVisibility(View.VISIBLE);
@@ -268,6 +300,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         progressBar.setVisibility(View.INVISIBLE);
     }
 
+    /**
+     * 각 Permission에 대한 설정
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case StaticVariable.REQ_PERMISSION_GPS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("Get Permission !", "Wow");
+                } else {
+
+                }
+
+                return;
+            }
+        }
+    }
+
+    /***/
+
+
     @Override
     public void onConnected(Bundle bundle) {
     }
@@ -277,7 +333,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {    }
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
 
 
     //사용자가 지도를 클릭했을 때 처리하는 함수
@@ -290,26 +347,33 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //리스너 등록
-    protected void onResume(){     super.onResume();    }
-    //리스너 해제
-    protected void onPause(){     super.onPause();   }
+    protected void onResume() {
+        super.onResume();
+    }
 
-    public static void setXMLText(String text){ textview.setText(text);}
+    //리스너 해제
+    protected void onPause() {
+        super.onPause();
+    }
+
+    public static void setXMLText(String text) {
+        textview.setText(text);
+    }
 
     //시간 갱신을 위한 스레드
     public class TimeRefresh implements Runnable {
         @Override
         public void run() {
-            while(true) {
+            while (true) {
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                    dateTextView.setText(new TimeData().getNowDate());
+                        dateTextView.setText(new TimeData().getNowDate());
                     }
                 });
                 try {
-                    Thread.sleep(60*1000);
+                    Thread.sleep(60 * 1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
