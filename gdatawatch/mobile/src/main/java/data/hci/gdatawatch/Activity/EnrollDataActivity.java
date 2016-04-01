@@ -5,22 +5,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
+import data.hci.gdatawatch.Data.PersonalPreference;
+import data.hci.gdatawatch.Network.RestRequestHelper;
 import data.hci.gdatawatch.R;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 
 public class EnrollDataActivity extends AppCompatActivity {
     EditText name;
+    EditText job;
+    EditText school;
+    RadioGroup selectLevel;
 
     EditText Birth;
     Calendar calendar;
     RadioGroup selectGender;
 
     int gender;
+    int level;
+
+    Button Enroll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +48,13 @@ public class EnrollDataActivity extends AppCompatActivity {
     protected void init(){
         name = (EditText)findViewById(R.id.nameText);
         Birth = (EditText)findViewById(R.id.birthText);
+        job = (EditText)findViewById(R.id.jobText);
+        school = (EditText)findViewById(R.id.schoolText);
+
         calendar = Calendar.getInstance();
         selectGender = (RadioGroup)findViewById(R.id.genderGroup);
 
+        /*Gender Radio Group 선택*/
         selectGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -51,19 +70,63 @@ public class EnrollDataActivity extends AppCompatActivity {
             }
         });
 
+        /* 생년 월일*/
         Birth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                new DatePickerDialog(getApplicationContext(), date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+                new DatePickerDialog(EnrollDataActivity.this, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        /* 레벨 선택*/
+        selectLevel = (RadioGroup)findViewById(R.id.levelGroup);
+        selectLevel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case R.id.upper:
+                        level = 2;
+                        break;
+                    case R.id.lower:
+                        level = 1;
+                        break;
+                }
+            }
+        });
+
+        Enroll = (Button)findViewById(R.id.enrollBtn);
+        Enroll.setOnClickListener(enrollData);
     }
 
     DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, monthOfYear);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            Birth.setText(new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()));
+        }
+    };
+
+    View.OnClickListener enrollData = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            RestRequestHelper restRequestHelper = RestRequestHelper.newInstance();
+            restRequestHelper.enrollUser(name.getText().toString(), Birth.getText().toString(), gender, job.getText().toString(), level, new Callback<Integer>() {
+                @Override
+                public void success(Integer integer, Response response) {
+                    System.out.println(integer);
+                    PersonalPreference personalPreference = new PersonalPreference(EnrollDataActivity.this);
+                    personalPreference.setData(integer,name.getText().toString(),Birth.getText().toString(), gender, job.getText().toString(), level);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    error.printStackTrace();
+                }
+            });
+            finish();
         }
     };
 }

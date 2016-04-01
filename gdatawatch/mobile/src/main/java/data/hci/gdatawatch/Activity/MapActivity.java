@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Iterator;
 
 import data.hci.gdatawatch.Data.EnvironmentData;
+import data.hci.gdatawatch.Data.PersonalPreference;
 import data.hci.gdatawatch.Data.TimeData;
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.Network.GetXMLTask;
@@ -44,6 +45,7 @@ import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
+import data.hci.gdatawatch.Thread.SendEnviro;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
@@ -111,6 +113,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        PersonalPreference pf = new PersonalPreference(this);
+        if(!pf.isData())
+            startActivity(new Intent(this,EnrollDataActivity.class));
+
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -139,7 +145,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         //시간 업데이트
         new Thread(new TimeRefresh()).start();
-        // new Thread(new SendEnviro(ed, this)).start();
+        new Thread(new SendEnviro(ed, this)).start();
     }
 
     /**
