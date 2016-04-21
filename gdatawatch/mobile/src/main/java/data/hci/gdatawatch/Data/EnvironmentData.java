@@ -1,5 +1,7 @@
 package data.hci.gdatawatch.Data;
 
+import com.google.android.gms.location.DetectedActivity;
+
 /**
  * Created by user on 2016-03-17.
  *
@@ -23,6 +25,9 @@ public class EnvironmentData {
     private double lat;// -90 ~ 90
     private double lng; // -180 ~ 180
 
+    private int actionType = -1; // unknown
+    private int actionConfidence;
+
     public void setID(int id){ uid=id;  }
     public void setAccel(double x, double y, double z){
         accelX = x;
@@ -40,6 +45,11 @@ public class EnvironmentData {
         this.lng = lng;
     }
 
+    public void setAction(int type, int confidence){
+        actionType = type;
+        actionConfidence = confidence;
+    }
+
     public int getUid(){   return uid;  }
     public double getAccelX(){ return accelX; }
     public double getAccelY(){ return  accelY;}
@@ -53,7 +63,7 @@ public class EnvironmentData {
         String data = "uid=" + uid + "&lat=" + lat + "&lng=" + lng
                 + "&gyroX=" + gyroX + "&gyroY=" + gyroY + "&gyroZ=" + gyroZ
                 + "&accelX=" + accelX + "&accelY=" + accelY + "&accelZ="
-                + accelZ;
+                + accelZ+"&type="+actionType+"&confidence="+actionConfidence;
 
         return data;
     }
