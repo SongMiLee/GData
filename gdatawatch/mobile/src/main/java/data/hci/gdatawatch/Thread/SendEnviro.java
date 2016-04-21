@@ -34,7 +34,7 @@ public class SendEnviro implements Runnable {
     public void run() {
         while(true) {
             try {
-                //new EnvironmentPostTask().execute(ed.getData());
+                //new EnvironmentPostTask().execute(ed.getData());k
                 restRequestHelper.enviroData(ed.getData(), new Callback<Integer>() {
                     @Override
                     public void success(Integer integer, Response response) {
@@ -46,7 +46,7 @@ public class SendEnviro implements Runnable {
                         error.printStackTrace();
                     }
                 });
-                Thread.sleep(1000*60);
+                Thread.sleep(1000*1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

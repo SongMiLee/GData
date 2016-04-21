@@ -1,7 +1,9 @@
 package data.hci.gdatawatch.Activity;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -9,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -21,6 +24,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
@@ -43,12 +49,13 @@ import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.Network.GetXMLTask;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
+import data.hci.gdatawatch.Service.DetectActivityIntentService;
 import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
 import data.hci.gdatawatch.Thread.SendEnviro;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener, ResultCallback<Status> {
 
     MapFragment mapFragment;
     GoogleMap mMap;
@@ -102,8 +109,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
                 accelTextView.setText("가속도 값 : " + "x : " + x + " y : " + y + " z : " + z);
                 ed.setAccel(x, y, z);
-            } else if (intent.getAction().equals(StaticVariable.GPS_PERMISSION)) {
-                ActivityCompat.requestPermissions(getParent(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, StaticVariable.REQ_PERMISSION_GPS);
+            }
+            else if(intent.getAction().equals(StaticVariable.BROADCAST_ACTION)){
+                ed.setAction(intent.getIntExtra("type", -1), intent.getIntExtra("confidence", -1));
             }
         }
     };
@@ -124,6 +132,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API)
                     .addApi(Places.GEO_DATA_API)
                     .addApi(Places.PLACE_DETECTION_API)
+                    .addApi(ActivityRecognition.API)
                     .build();
         }
 
@@ -132,12 +141,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         intentFilter.addAction(StaticVariable.BROADCAST_GPS);
         intentFilter.addAction(StaticVariable.BROADCAST_GYRO);
         intentFilter.addAction(StaticVariable.BROADCAST_ACCEL);
+        intentFilter.addAction(StaticVariable.BROADCAST_ACTION);
 
         ed = new EnvironmentData();
         initUI();
 
         startService((new Intent(getApplicationContext(), GyroService.class)));
         startService((new Intent(getApplicationContext(), AccelService.class)));
+
         registerReceiver(broadcastReceiver, intentFilter);
 
         //시간텍스트 지정
@@ -146,6 +157,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //시간 업데이트
         new Thread(new TimeRefresh()).start();
         new Thread(new SendEnviro(ed, this)).start();
+
+    }
+
+    private PendingIntent getActivityDetectionPendingIntent(){
+        Intent i = new Intent(this, DetectActivityIntentService.class);
+
+        return PendingIntent.getService(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
@@ -174,15 +192,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     startService((new Intent(getApplicationContext(), GpsService.class)));
                     GpsService.isSend = false;
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
+                    //new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
                 } else {
                     mMap.clear();
                     GpsService.isSend = false;
                     stopService((new Intent(getApplicationContext(), GpsService.class)));
                 }
 
-                new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
             }
         });
+
 
         calendarBtn = (Button) findViewById(R.id.btn_calendar);
         calendarBtn.setOnClickListener(new View.OnClickListener() {
@@ -208,6 +227,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     protected void onStop() {
+        //사용자 활동 감지 내역을 날림
+        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent()).setResultCallback(this);
+
         googleApiClient.disconnect();
         super.onStop();
     }
@@ -217,7 +239,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onDestroy();
         try {
             if (broadcastReceiver != null) unregisterReceiver(broadcastReceiver);
+
+            //서비스 중단
             stopService((new Intent(getApplicationContext(), GyroService.class)));
+            stopService((new Intent(getApplicationContext(), GpsService.class)));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -300,41 +326,20 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    /**
-     * 각 Permission에 대한 설정
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-            case StaticVariable.REQ_PERMISSION_GPS: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("Get Permission !", "Wow");
-                } else {
-
-                }
-
-                return;
-            }
-        }
-    }
-
-    /***/
-
 
     @Override
     public void onConnected(Bundle bundle) {
+        //사용자의 활동 내역을 감지
+       ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient,
+                StaticVariable.DETECTION_INTERVAL_IN_MILLISECONDS,getActivityDetectionPendingIntent()).setResultCallback(this);
+        Log.i("tag", "Connected to GoogleApiClient");
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-    }
+    public void onConnectionSuspended(int i) { googleApiClient.connect();    }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-    }
+    public void onConnectionFailed(ConnectionResult connectionResult) { Log.i("tag", "Connection failed "+connectionResult.getErrorMessage());    }
 
 
     //사용자가 지도를 클릭했을 때 처리하는 함수
@@ -358,6 +363,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     public static void setXMLText(String text) {
         textview.setText(text);
+    }
+
+    @Override
+    public void onResult(Status status) {
+        if(status.isSuccess()){
+
+        } else{
+            Log.d("status Error ", status.getStatusMessage());
+        }
     }
 
     //시간 갱신을 위한 스레드
