@@ -3,7 +3,6 @@ package data.hci.gdatawatch.Activity;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,8 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -26,7 +23,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
@@ -46,7 +42,6 @@ import data.hci.gdatawatch.Data.EnvironmentData;
 import data.hci.gdatawatch.Data.PersonalPreference;
 import data.hci.gdatawatch.Data.TimeData;
 import data.hci.gdatawatch.Global.StaticVariable;
-import data.hci.gdatawatch.Network.GetXMLTask;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.DetectActivityIntentService;
@@ -227,10 +222,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     protected void onStop() {
-        //사용자 활동 감지 내역을 날림
-        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent()).setResultCallback(this);
-
-        googleApiClient.disconnect();
+        //사용자 활동 감지 내역을 없앤다.
+        if(googleApiClient.isConnected()) {
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent()).setResultCallback(this);
+            googleApiClient.disconnect();
+        }
         super.onStop();
     }
 
@@ -313,17 +309,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
      * 화면 업데이트
      */
     private void updateUI() {
-        mMap.clear();
-        progressBar.setVisibility(View.VISIBLE);
-        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc");
+        mMap.clear();//지도 깨끗이
+        progressBar.setVisibility(View.VISIBLE);//프로그래스 바 보이게 함
+        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("MyLoc");//해당 지점에 마커 생성
         mMap.addMarker(marker);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));//마커가 된 부분에 줌
         CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude))
                 .radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
                 .strokeColor(Color.RED)
                 .strokeWidth(3);
         mMap.addCircle(circle);
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);//프로그래스 바 지우기
     }
 
 
@@ -336,7 +332,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     }
 
     @Override
-    public void onConnectionSuspended(int i) { googleApiClient.connect();    }
+    public void onConnectionSuspended(int i) { googleApiClient.connect();  }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) { Log.i("tag", "Connection failed "+connectionResult.getErrorMessage());    }
@@ -351,12 +347,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         updateUI();
     }
 
-    //리스너 등록
     protected void onResume() {
         super.onResume();
     }
 
-    //리스너 해제
     protected void onPause() {
         super.onPause();
     }
