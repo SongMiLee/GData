@@ -30,10 +30,10 @@ public class DetectActivityIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-        Intent localIntent = new Intent(StaticVariable.BROADCAST_ACTION);
+        Intent localIntent = new Intent();
 
         DetectedActivity detectedActivities = result.getMostProbableActivity();
-        Log.d("da", StaticVariable.getActivityString(detectedActivities.getType())+" "+detectedActivities.getConfidence());
+        Log.d("Detect Activity", StaticVariable.getActivityString(detectedActivities.getType())+" "+detectedActivities.getConfidence());
 
         localIntent.setAction(StaticVariable.BROADCAST_ACTION);
         localIntent.putExtra("type", detectedActivities.getType());
