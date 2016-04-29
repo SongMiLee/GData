@@ -39,14 +39,11 @@
             android:text="Birth "
             />
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="date"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:hint="YYYY-MM-DD"
-            android:ems="10"
-            android:id="@+id/birthText"
-            android:layout_weight="1" />
+            android:id="@+id/birthText" />
 
     </LinearLayout>
 

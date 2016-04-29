@@ -14,7 +14,6 @@
     <!-- Calendar Read Write -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
@@ -67,6 +66,11 @@
         <service
             android:name=".Service.DetectActivityIntentService"
             android:exported="false" >
+        </service>
+        <service
+            android:name=".Service.SendDataService"
+            android:enabled="true"
+            android:exported="true" >
         </service>
     </application>
 

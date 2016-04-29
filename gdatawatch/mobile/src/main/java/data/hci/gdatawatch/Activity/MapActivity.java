@@ -40,14 +40,14 @@ import java.util.Iterator;
 
 import data.hci.gdatawatch.Data.EnvironmentData;
 import data.hci.gdatawatch.Data.PersonalPreference;
-import data.hci.gdatawatch.Data.TimeData;
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.DetectActivityIntentService;
 import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
-import data.hci.gdatawatch.Thread.SendEnviro;
+import data.hci.gdatawatch.Service.SendDataService;
+import data.hci.gdatawatch.Thread.TimeRefresh;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener, ResultCallback<Status> {
@@ -67,7 +67,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     TextView accelTextView;
 
     //시간관련 변수
-    TextView dateTextView;
+    static TextView dateTextView;
 
     //스레드
     EnvironmentData ed;
@@ -124,7 +124,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
                     .addApi(Places.GEO_DATA_API)
                     .addApi(Places.PLACE_DETECTION_API)
                     .addApi(ActivityRecognition.API)
@@ -141,18 +140,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         ed = new EnvironmentData();
         initUI();
 
-        startService((new Intent(getApplicationContext(), GyroService.class)));
-        startService((new Intent(getApplicationContext(), AccelService.class)));
-
         registerReceiver(broadcastReceiver, intentFilter);
-
-        //시간텍스트 지정
-        dateTextView = (TextView) findViewById(R.id.tv_date);
-
-        //시간 업데이트
-        new Thread(new TimeRefresh()).start();
-        new Thread(new SendEnviro(ed, this)).start();
-
     }
 
     private PendingIntent getActivityDetectionPendingIntent(){
@@ -183,15 +171,20 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
                 requestMyLoc = !(requestMyLoc);
+
                 if (requestMyLoc) {
-                    startService((new Intent(getApplicationContext(), GpsService.class)));
-                    GpsService.isSend = false;
+                    startService(new Intent(getApplicationContext(), GpsService.class));
+                    startService((new Intent(getApplicationContext(), GyroService.class)));
+                    startService((new Intent(getApplicationContext(), AccelService.class)));
+                    startService(new Intent(getApplicationContext(), SendDataService.class));
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
                     //new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
                 } else {
                     mMap.clear();
-                    GpsService.isSend = false;
-                    stopService((new Intent(getApplicationContext(), GpsService.class)));
+                    stopService(new Intent(getApplicationContext(), GpsService.class));
+                    stopService((new Intent(getApplicationContext(), GyroService.class)));
+                    stopService((new Intent(getApplicationContext(), AccelService.class)));
+                    stopService(new Intent(getApplicationContext(), SendDataService.class));
                 }
 
             }
@@ -212,6 +205,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        dateTextView = (TextView) findViewById(R.id.tv_date); //시간텍스트 지정
+        new Thread(new TimeRefresh(this)).start();//시간 업데이트
     }
 
     @Override
@@ -238,6 +234,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             //서비스 중단
             stopService((new Intent(getApplicationContext(), GyroService.class)));
+            stopService((new Intent(getApplicationContext(), AccelService.class)));
             stopService((new Intent(getApplicationContext(), GpsService.class)));
 
         } catch (Exception e) {
@@ -348,17 +345,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         updateUI();
     }
 
-    protected void onResume() {
-        super.onResume();
-    }
+    protected void onResume() {    super.onResume();   }
 
-    protected void onPause() {
-        super.onPause();
-    }
+    protected void onPause() {     super.onPause();   }
 
-    public static void setXMLText(String text) {
-        textview.setText(text);
-    }
+    public static void setXMLText(String text) {  textview.setText(text);   }
+
+    public static void setTimeText(String text) { dateTextView.setText(text); }
 
     @Override
     public void onResult(Status status) {
@@ -369,25 +362,5 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
-    //시간 갱신을 위한 스레드
-    public class TimeRefresh implements Runnable {
-        @Override
-        public void run() {
-            while (true) {
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        dateTextView.setText(new TimeData().getNowDate());
-                    }
-                });
-                try {
-                    Thread.sleep(60 * 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }//스레드 끝
 }
 

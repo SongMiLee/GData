@@ -37,6 +37,12 @@ public class AccelService extends Service implements SensorEventListener {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sensorManager.unregisterListener(this);//서비스 해제
+    }
+
+    @Override
     public void onSensorChanged(SensorEvent event) {
         float []gravity = new float[3];
         if(event.sensor.getType()==Sensor.TYPE_GRAVITY){

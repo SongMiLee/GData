@@ -9,6 +9,7 @@ public class StaticVariable {
     public static final String BROADCAST_GYRO ="data.hci.gdata.gyro";
     public static final String BROADCAST_ACCEL ="data.hci.gdata.accel";
     public static final String BROADCAST_ACTION = "data.hci.action";
+    public static final String BROADCAST_TIME = "data.hci.time";
     public static final String GPS_PERMISSION = "location.permission";
 
     public static final int FINDLOCATION = 1000;
