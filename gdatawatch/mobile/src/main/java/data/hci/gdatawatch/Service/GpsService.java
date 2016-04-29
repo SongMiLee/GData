@@ -5,11 +5,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,13 +23,14 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
 
-    public static Boolean isSend = true;
+    public static Boolean isSend = false;
 
     public GpsService() {    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -41,10 +40,17 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
         }
     }
 
+    @Override
+    public void onDestroy() {
+        stopLocationUpdate();
+        googleApiClient.disconnect();
+        super.onDestroy();
+    }
+
     protected void createLocationRequest() {
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000 * 10);//기본 5초마다 위치를 찾음
-        locationRequest.setFastestInterval(1000 * 5);//빠르게 할 땐 2초마다 찾음.
+        locationRequest.setInterval(1000 * 2);//기본 위치를 찾기 시간
+        locationRequest.setFastestInterval(1000 * 1);//빠르게 위치를 찾을 때 시간.
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);//정확하게 위치를 찾음
     }
 
@@ -71,13 +77,7 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
         broadcastIntent.putExtra("Latitude", location.getLatitude());
         broadcastIntent.putExtra("Longitude", location.getLongitude());
 
-        Log.d("gps Service", isSend.toString());
-
-        if(isSend) {
-            sendBroadcast(broadcastIntent);//브로드캐스트 인텐트를 보낸다.
-            Log.d("gps Service", location.getLatitude() + " " + location.getLongitude());
-        }
-
+        sendBroadcast(broadcastIntent);
     }
 
     //장소 업데이트

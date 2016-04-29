@@ -9,10 +9,10 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import data.hci.gdatawatch.Data.PersonalPreference;
 import data.hci.gdatawatch.Network.RestRequestHelper;
@@ -28,7 +28,7 @@ public class EnrollDataActivity extends AppCompatActivity {
     EditText school;
     RadioGroup selectLevel;
 
-    EditText Birth;
+    TextView birth;
     Calendar calendar;
     RadioGroup selectGender;
 
@@ -47,7 +47,7 @@ public class EnrollDataActivity extends AppCompatActivity {
 
     protected void init(){
         name = (EditText)findViewById(R.id.nameText);
-        Birth = (EditText)findViewById(R.id.birthText);
+        birth = (TextView)findViewById(R.id.birthText);
         job = (EditText)findViewById(R.id.jobText);
         school = (EditText)findViewById(R.id.schoolText);
 
@@ -71,7 +71,7 @@ public class EnrollDataActivity extends AppCompatActivity {
         });
 
         /* 생년 월일*/
-        Birth.setOnClickListener(new View.OnClickListener() {
+        birth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new DatePickerDialog(EnrollDataActivity.this, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
@@ -105,7 +105,7 @@ public class EnrollDataActivity extends AppCompatActivity {
             calendar.set(Calendar.MONTH, monthOfYear);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            Birth.setText(new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()));
+            birth.setText(new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()));
         }
     };
 
@@ -113,12 +113,12 @@ public class EnrollDataActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             RestRequestHelper restRequestHelper = RestRequestHelper.newInstance();
-            restRequestHelper.enrollUser(name.getText().toString(), Birth.getText().toString(), gender, job.getText().toString(), level, new Callback<Integer>() {
+            restRequestHelper.enrollUser(name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level, new Callback<Integer>() {
                 @Override
                 public void success(Integer integer, Response response) {
                     System.out.println(integer);
                     PersonalPreference personalPreference = new PersonalPreference(EnrollDataActivity.this);
-                    personalPreference.setData(integer,name.getText().toString(),Birth.getText().toString(), gender, job.getText().toString(), level);
+                    personalPreference.setData(integer,name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level);
                 }
 
                 @Override

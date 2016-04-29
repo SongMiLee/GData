@@ -190,7 +190,6 @@ public class CalendarActivity extends AppCompatActivity {
 
         /**
          * Google Calender로부터 이벤트를 받아오는 함수
-         * 현재 시간 이후의 이벤트를 가져온다.
          * */
         private List<String> getDataFromApi() throws IOException{
             DateTime now = new DateTime(System.currentTimeMillis());
