@@ -1,12 +1,15 @@
 package data.hci.gdatawatch.Activity;
 
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -44,12 +47,14 @@ public class CalendarActivity extends AppCompatActivity {
     GoogleAccountCredential credential;
 
     Button invalidateBtn;
-    private final String SCOPE="https://www.googleapis.com/auth/googletalk";
+    private final String SCOPE="https://www.googleapis.com/auth/calendar";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
+
+        checkAccountPermission();
 
         calendarView = (CalendarView) findViewById(R.id.calendarView);
         invalidateBtn = (Button)findViewById(R.id.btn_invalidate);
@@ -70,6 +75,40 @@ public class CalendarActivity extends AppCompatActivity {
         else
             chooseAccount();
 
+    }
+
+    /**
+     * 권한 설정
+     * */
+    private void checkAccountPermission(){
+        //마시멜로우 버전 이상일 때만 권한 설정이 적용
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //권한이 없을 때
+            if(checkSelfPermission(Manifest.permission.ACCOUNT_MANAGER) != PackageManager.PERMISSION_GRANTED
+                    || checkSelfPermission(Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED
+                    || checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED
+                    || checkSelfPermission(Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.ACCOUNT_MANAGER, Manifest.permission.GET_ACCOUNTS,
+                        Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR}, StaticVariable.ACCOUNT_PERMISSION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case StaticVariable.ACCOUNT_PERMISSION:
+                if(grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[2] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[3] == PackageManager.PERMISSION_GRANTED){   Log.d("Calendar Activity","Account access");}
+                else {
+                    Log.d("Calendar Activity", "Account deny");
+                    finish();
+                }
+                Log.d("Calendar Activity", grantResults.toString());
+            break;
+        }
     }
 
     private void doAuthenticatedStuff(){
@@ -198,14 +237,14 @@ public class CalendarActivity extends AppCompatActivity {
             Events events = service.events().list("primary")
                     .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
 
-            List<Event> items = events.getItems();
+            List<Event> items = events.getItems();//캘린더 이벤트 집합
             for(Event event : items){
                 DateTime start = event.getStart().getDateTime();
                 if(start == null){
                     start = event.getStart().getDate();
                 }
-                Log.d("event String", event.getSummary());
-                eventStrings.add(String.format("%s (%s)", event.getSummary(), start));
+                Log.d("event String", event.getEtag()); //etag는 캘린더 이벤트 생성 시 항상 생성
+                eventStrings.add(String.format("%s (%s)", event.getEtag(), start));
             }
 
             return eventStrings;//모든 이벤트 내역을 돌려준다.

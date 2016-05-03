@@ -85,9 +85,6 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(StaticVariable.GPS_PERMISSION);//인텐트 액션 설정
-                sendBroadcast(broadcastIntent);
             }
             else
                 LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
@@ -102,9 +99,7 @@ public class GpsService extends Service implements LocationListener, GoogleApiCl
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(StaticVariable.GPS_PERMISSION);//인텐트 액션 설정
-                sendBroadcast(broadcastIntent);
+
             }
             else
                 LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);

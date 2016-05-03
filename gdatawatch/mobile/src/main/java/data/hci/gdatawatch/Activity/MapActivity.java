@@ -23,7 +23,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
@@ -255,10 +254,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             //권한이 없을 때
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(StaticVariable.GPS_PERMISSION);//인텐트 액션 설정
-                sendBroadcast(broadcastIntent);
-            } else {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, StaticVariable.GPS_PERMISSION);
+            } else {// 항상 허용일 경우
                 mMap.setOnMapClickListener(this);
                 uiSettings.setZoomControlsEnabled(true);
 
@@ -362,5 +359,24 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case StaticVariable.GPS_PERMISSION:
+                progressBar.setVisibility(View.INVISIBLE);
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                    Log.d("Map Activity", "GPS Permission granted");
+                }
+                else{
+                    Log.d("Map Activity", "GPS Permission denied");
+                    myLoc.setClickable(false);
+                    recommendBtn.setClickable(false);
+                }
+
+                break;
+        }
+    }
 }
 

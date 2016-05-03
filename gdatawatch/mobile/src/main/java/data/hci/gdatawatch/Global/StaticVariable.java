@@ -10,11 +10,12 @@ public class StaticVariable {
     public static final String BROADCAST_ACCEL ="data.hci.gdata.accel";
     public static final String BROADCAST_ACTION = "data.hci.action";
     public static final String BROADCAST_TIME = "data.hci.time";
-    public static final String GPS_PERMISSION = "location.permission";
 
-    public static final int FINDLOCATION = 1000;
-    public static final int REQUEST_PICK_ACCOUNT = 2000;
-    public static final int REQUEST_AUTHORIZATION = 3000;
+    public static final int REQUEST_PICK_ACCOUNT = 1000;
+    public static final int REQUEST_AUTHORIZATION = 2000;
+    public static final int ACCOUNT_PERMISSION = 3000;
+    public static final int GPS_PERMISSION = 4000;
+    public static final int CALENDAR_PERMISSION = 5000;
 
     //permission variable
     public static final int REQ_PERMISSION_GPS = 200;
