@@ -1,7 +1,5 @@
 package data.hci.gdatawatch.Network;
 
-import com.google.api.client.http.HttpResponse;
-
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.http.Field;

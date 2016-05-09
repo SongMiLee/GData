@@ -253,7 +253,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback,
         mMap.addMarker(marker);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18));
         CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude))
-                //.radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
+                .radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
                 .strokeColor(Color.RED)
                 .strokeWidth(3);
         mMap.addCircle(circle);

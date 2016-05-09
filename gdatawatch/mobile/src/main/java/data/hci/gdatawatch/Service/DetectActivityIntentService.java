@@ -2,14 +2,10 @@ package data.hci.gdatawatch.Service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
-
-import java.util.ArrayList;
 
 import data.hci.gdatawatch.Global.StaticVariable;
 

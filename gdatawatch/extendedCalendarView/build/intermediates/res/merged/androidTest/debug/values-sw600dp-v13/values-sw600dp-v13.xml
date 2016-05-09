@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/Users/user/AndroidStudioProjects/gdatawatch/extendedCalendarView/build/intermediates/bundles/debug/res/values-sw600dp-v13/values-sw600dp-v13.xml -->
+    <eat-comment/>
+    <dimen name="day_margin">59dp</dimen>
+    <dimen name="min_cell_height">50dp</dimen>
+    <dimen name="min_cell_width">50dp</dimen>
+    <dimen name="text_height_width">30dp</dimen>
+</resources>

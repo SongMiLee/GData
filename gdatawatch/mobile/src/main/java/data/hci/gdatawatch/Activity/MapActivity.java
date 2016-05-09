@@ -40,11 +40,13 @@ import java.util.Iterator;
 import data.hci.gdatawatch.Data.EnvironmentData;
 import data.hci.gdatawatch.Data.PersonalPreference;
 import data.hci.gdatawatch.Global.StaticVariable;
+import data.hci.gdatawatch.Network.GetXMLTask;
 import data.hci.gdatawatch.R;
 import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.DetectActivityIntentService;
 import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
+import data.hci.gdatawatch.Service.SService;
 import data.hci.gdatawatch.Service.SendDataService;
 import data.hci.gdatawatch.Thread.TimeRefresh;
 
@@ -176,14 +178,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     startService((new Intent(getApplicationContext(), GyroService.class)));
                     startService((new Intent(getApplicationContext(), AccelService.class)));
                     startService(new Intent(getApplicationContext(), SendDataService.class));
+                    startService(new Intent(getApplicationContext(), SService.class));
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
-                    //new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
+                    new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
                 } else {
                     mMap.clear();
                     stopService(new Intent(getApplicationContext(), GpsService.class));
                     stopService((new Intent(getApplicationContext(), GyroService.class)));
                     stopService((new Intent(getApplicationContext(), AccelService.class)));
                     stopService(new Intent(getApplicationContext(), SendDataService.class));
+                    stopService(new Intent(getApplicationContext(), SService.class));
                 }
 
             }
@@ -232,9 +236,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             if (broadcastReceiver != null) unregisterReceiver(broadcastReceiver);
 
             //서비스 중단
+            stopService(new Intent(getApplicationContext(), GpsService.class));
             stopService((new Intent(getApplicationContext(), GyroService.class)));
             stopService((new Intent(getApplicationContext(), AccelService.class)));
-            stopService((new Intent(getApplicationContext(), GpsService.class)));
+            stopService(new Intent(getApplicationContext(), SendDataService.class));
+            stopService(new Intent(getApplicationContext(), SService.class));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -310,7 +316,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17));//마커가 된 부분에 줌
 
         CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude))
-                //.radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
+                .radius(StaticVariable.RADIUS)// 100m 반경의 원을 그린다.
                 .strokeColor(Color.RED)
                 .strokeWidth(3);
         mMap.addCircle(circle);
@@ -368,6 +374,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                         grantResults[1] == PackageManager.PERMISSION_GRANTED){
                     Log.d("Map Activity", "GPS Permission granted");
+
                 }
                 else{
                     Log.d("Map Activity", "GPS Permission denied");

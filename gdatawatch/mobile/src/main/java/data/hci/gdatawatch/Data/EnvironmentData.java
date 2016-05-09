@@ -1,7 +1,5 @@
 package data.hci.gdatawatch.Data;
 
-import com.google.android.gms.location.DetectedActivity;
-
 /**
  * Created by user on 2016-03-17.
  *

@@ -11,11 +11,14 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CalendarView;
+import android.widget.ProgressBar;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -33,21 +36,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import data.hci.gdatawatch.Adapter.EventAdapter;
 import data.hci.gdatawatch.Global.StaticVariable;
 import data.hci.gdatawatch.Oauth.AuthPreferences;
 import data.hci.gdatawatch.R;
 
 
 public class CalendarActivity extends AppCompatActivity {
-    CalendarView calendarView;
-
     AccountManager accountManager;
     AuthPreferences authPreferences;
 
     GoogleAccountCredential credential;
 
-    Button invalidateBtn;
+    Button invalidateBtn, addEvent;
     private final String SCOPE="https://www.googleapis.com/auth/calendar";
+
+    RecyclerView recyclerView;
+    LinearLayoutManager layoutManager;
+    ProgressBar progressBar;
+    Handler handler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +63,34 @@ public class CalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
 
         checkAccountPermission();
+        init();
 
-        calendarView = (CalendarView) findViewById(R.id.calendarView);
+
+    }
+
+    protected void init(){
+        handler = new Handler();//recyclerview ui 업데이트 핸들러
+
+        recyclerView = (RecyclerView)findViewById(R.id.calendar_event_list); //이벤트 아이템 뷰
+        layoutManager = new LinearLayoutManager(getApplicationContext());//아이템의 항목을 배치
+        recyclerView.setLayoutManager(layoutManager);
+
+        progressBar = (ProgressBar)findViewById(R.id.progressBar_calendar); //이벤트 아이템 뷰가 나타나기 전까지의 프로그래스 바
+
         invalidateBtn = (Button)findViewById(R.id.btn_invalidate);
         invalidateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 invalidateToken();
                 finish();
+            }
+        });
+
+        addEvent = (Button)findViewById(R.id.add_event_button);
+        addEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(getApplicationContext(), AddEventActivity.class), StaticVariable.CALENDAR_ACCEPT);
             }
         });
 
@@ -74,7 +102,6 @@ public class CalendarActivity extends AppCompatActivity {
             doAuthenticatedStuff();
         else
             chooseAccount();
-
     }
 
     /**
@@ -154,6 +181,7 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d("request code", requestCode+"");
         switch (requestCode){
             case StaticVariable.REQUEST_AUTHORIZATION://승인이 된 account의 토큰 요청
                 if(resultCode == RESULT_OK){
@@ -171,7 +199,23 @@ public class CalendarActivity extends AppCompatActivity {
                     requestToken();
                 }
                 break;
+
+            case StaticVariable.CALENDAR_ACCEPT:
+                if(resultCode == RESULT_OK)
+                    new MakeRequestTask(credential).execute();
+                break;
         }
+    }
+
+    public void addData(final List<String> data){
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                EventAdapter adapter = new EventAdapter(data);
+                recyclerView.setAdapter(adapter);
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
@@ -203,6 +247,7 @@ public class CalendarActivity extends AppCompatActivity {
         Exception error = null;
 
         public MakeRequestTask(GoogleAccountCredential credential){
+            progressBar.setVisibility(View.VISIBLE);
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             com.google.api.client.json.JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             service = new Calendar.Builder(transport, jsonFactory, credential)
@@ -234,7 +279,9 @@ public class CalendarActivity extends AppCompatActivity {
             DateTime now = new DateTime(System.currentTimeMillis());
             List<String> eventStrings = new ArrayList<String>();
 
+            Log.d("Calendar Activity", now.toString());
             Events events = service.events().list("primary")
+                    .setTimeMax(now)
                     .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
 
             List<Event> items = events.getItems();//캘린더 이벤트 집합
@@ -243,10 +290,12 @@ public class CalendarActivity extends AppCompatActivity {
                 if(start == null){
                     start = event.getStart().getDate();
                 }
-                Log.d("event String", event.getEtag()); //etag는 캘린더 이벤트 생성 시 항상 생성
-                eventStrings.add(String.format("%s (%s)", event.getEtag(), start));
+
+                Log.d("event String", event.getStart()+" "+event.getEnd().getDateTime()); //etag는 캘린더 이벤트 생성 시 항상 생성
+                eventStrings.add(String.format("%s (%s)", event.getSummary(), start));
             }
 
+            addData(eventStrings);
             return eventStrings;//모든 이벤트 내역을 돌려준다.
         }
     }

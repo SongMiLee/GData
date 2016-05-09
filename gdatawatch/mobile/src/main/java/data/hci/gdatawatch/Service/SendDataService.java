@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
 import data.hci.gdatawatch.Data.EnvironmentData;
 import data.hci.gdatawatch.Data.PersonalPreference;
@@ -62,7 +61,7 @@ public class SendDataService extends Service {
                         restRequestHelper.enviroData(ed.getData(), new Callback<Integer>() {
                             @Override
                             public void success(Integer integer, Response response) {
-                                Log.d("Response Server", integer + "");
+                                //Log.d("Response Server", integer + "");
                             }
 
                             @Override
