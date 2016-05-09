@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    dexOptions{
+    dexOptions {
         javaMaxHeapSize "2g"
     }
 }
@@ -48,5 +48,4 @@ dependencies {
     compile 'com.google.apis:google-api-services-tasks:v1-rev41-1.20.0'
     //multidex
     compile 'com.android.support:multidex:1.0.0'
-    compile project(':extendedCalendarView')
 }

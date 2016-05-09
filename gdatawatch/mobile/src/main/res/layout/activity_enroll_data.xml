@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="data.hci.gdatawatch.Activity.EnrollDataActivity"
-    android:weightSum="1">
+    tools:context="data.hci.gdatawatch.Activity.EnrollDataActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+    <TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -24,15 +18,11 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/nameText"
-            android:layout_weight="1" />
+            android:layout_weight="0.8" />
 
-    </LinearLayout>
+    </TableRow>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+    <TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -42,16 +32,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:textSize="15pt"
+            android:layout_weight="0.8"
             android:hint="YYYY-MM-DD"
             android:id="@+id/birthText" />
 
-    </LinearLayout>
+    </TableRow>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+    <TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -76,13 +64,9 @@
         </RadioGroup>
 
 
-    </LinearLayout>
+    </TableRow>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+    <TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -93,15 +77,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/jobText"
-            android:layout_weight="1" />
+            android:layout_weight="0.8" />
 
-    </LinearLayout>
+    </TableRow>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+    <TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -125,13 +105,9 @@
                 android:id="@+id/lower" />
         </RadioGroup>
 
-    </LinearLayout>
+    </TableRow>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+    <TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -142,15 +118,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/schoolText"
-            android:layout_weight="1" />
+            android:layout_weight="0.8" />
 
-    </LinearLayout>
+    </TableRow>
 
-    <Button
-        android:layout_width="384dp"
-        android:layout_height="wrap_content"
-        android:text="Enroll"
-        android:id="@+id/enrollBtn"
-        android:layout_gravity="right" />
+    <TableRow>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Enroll"
+            android:id="@+id/enrollBtn"
+            android:layout_weight="0.9"
+            android:layout_gravity="right" />
+    </TableRow>
 
-</LinearLayout>
+
+</TableLayout>
