@@ -23,17 +23,13 @@ import retrofit.client.Response;
 
 
 public class EnrollDataActivity extends AppCompatActivity {
-    EditText name;
-    EditText job;
-    EditText school;
-    RadioGroup selectLevel;
+    EditText name, job, school;
+    RadioGroup selectLevel, selectGender;
 
     TextView birth;
     Calendar calendar;
-    RadioGroup selectGender;
 
-    int gender;
-    int level;
+    int gender, level;
 
     Button Enroll;
 

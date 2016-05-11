@@ -160,12 +160,19 @@ public class CalendarActivity extends AppCompatActivity {
     private void requestToken(){
         Account userAccount = null;
         String user = authPreferences.getUser();
-        for(Account account : accountManager.getAccountsByType("com.google")){
-            if(account.name.equals(user))
-                userAccount = account;
-            break;
+        Log.d("Account user", user);
+
+        Account []account = accountManager.getAccountsByType("com.google");
+
+        for(int i = 0 ; i < accountManager.getAccountsByType("com.google").length; i++){
+            Log.d("Account name", account[i].name);
+            if(account[i].name.equals(user)) {
+                userAccount = account[i];
+                break;
+            }
         }
-       accountManager.getAuthToken(userAccount, "oauth2:" + SCOPE, null, this, new OnTokenAcquired(), null);
+
+        accountManager.getAuthToken(userAccount, "oauth2:" + SCOPE, null, this, new OnTokenAcquired(), null);
     }
 
     /**
@@ -276,12 +283,9 @@ public class CalendarActivity extends AppCompatActivity {
          * Google Calender로부터 이벤트를 받아오는 함수
          * */
         private List<String> getDataFromApi() throws IOException{
-            DateTime now = new DateTime(System.currentTimeMillis());
             List<String> eventStrings = new ArrayList<String>();
 
-            Log.d("Calendar Activity", now.toString());
             Events events = service.events().list("primary")
-                    .setTimeMax(now)
                     .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
 
             List<Event> items = events.getItems();//캘린더 이벤트 집합

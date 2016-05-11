@@ -13,6 +13,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -28,15 +29,23 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import data.hci.gdatawatch.Data.SituationData;
 import data.hci.gdatawatch.Global.StaticVariable;
+import data.hci.gdatawatch.Network.RestRequestHelper;
+import data.hci.gdatawatch.Network.SituationPostTask;
 import data.hci.gdatawatch.Oauth.AuthPreferences;
 import data.hci.gdatawatch.R;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class AddEventActivity extends AppCompatActivity {
     EditText person, location, name;
     TextView startDate, startTime, endDate, endTime;
     Button insert;
     Calendar toCalendar, fromCalendar;
+
+    RestRequestHelper restRequestHelper;
 
 
     GoogleAccountCredential credential;
@@ -51,6 +60,7 @@ public class AddEventActivity extends AppCompatActivity {
                 .setBackOff(new ExponentialBackOff());
         credential.setSelectedAccountName(new AuthPreferences(getApplicationContext()).getUser());
 
+        restRequestHelper = RestRequestHelper.newInstance();
         init();
     }
 
@@ -141,12 +151,33 @@ public class AddEventActivity extends AppCompatActivity {
     View.OnClickListener insertEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            new MakeRequestTask(credential).execute();
+            if(location.getText().toString().isEmpty() || name.getText().toString().isEmpty()){
+                Toast.makeText(getApplicationContext(), "Insert name & location", Toast.LENGTH_LONG).show();
+            }else {
+                String data =  new SituationData(getApplicationContext(), name.getText().toString(),
+                        location.getText().toString(), toCalendar, fromCalendar, person.getText().toString()).getData();
 
-            Intent intent = new Intent();
-            intent.putExtra("result", StaticVariable.CALENDAR_ACCEPT);
-            setResult(RESULT_OK, intent);
-            finish();
+                Log.d("evnet send data", data);
+
+                //구글 서버
+                new MakeRequestTask(credential).execute();
+                //local server
+                restRequestHelper.sitData(data, new Callback<Integer>() {
+                    @Override
+                    public void success(Integer integer, Response response) {
+                        Log.d("Event", integer + "");
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                    }
+                });
+                //sook myung
+                new SituationPostTask().execute(data);
+                setResult(RESULT_OK);
+                finish();
+            }
         }
     };
 
@@ -183,8 +214,11 @@ public class AddEventActivity extends AppCompatActivity {
         private void insertData() throws IOException {
             Event event = new Event()
                     .setSummary(name.getText().toString())
-                    .setLocation(location.getText().toString())
-                    .setDescription("person="+person.getText().toString());
+                    .setLocation(location.getText().toString());
+
+            //person이 있을 경우에만 넣어준다.
+            if(!person.getText().toString().isEmpty())
+                    event.setDescription("person="+person.getText().toString());
 
             DateTime startDateTime = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ").format(toCalendar.getTime()));
             Log.d("date time", startDateTime.toString());

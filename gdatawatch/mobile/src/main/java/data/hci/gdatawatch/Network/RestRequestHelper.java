@@ -49,6 +49,13 @@ public class RestRequestHelper {
                 @Field("data") String data,
                 Callback<Integer> evCallback
         );
+
+        @FormUrlEncoded
+        @POST("/situation")
+        void sitData(
+            @Field("data") String data,
+            Callback<Integer>sitCallback
+        );
     }
 
     public void enrollUser(String name, String birth, int gender, String job, int level, Callback<Integer> euCallback){
@@ -57,5 +64,9 @@ public class RestRequestHelper {
 
     public void enviroData( String data, Callback<Integer> evCallback){
         restRequest.enviroData(data, evCallback);
+    }
+
+    public void sitData(String data, Callback<Integer> sitCallback){
+        restRequest.sitData(data, sitCallback);
     }
 }
