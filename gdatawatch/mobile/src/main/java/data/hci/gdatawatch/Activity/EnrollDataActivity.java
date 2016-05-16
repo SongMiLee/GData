@@ -10,6 +10,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -45,7 +46,7 @@ public class EnrollDataActivity extends AppCompatActivity {
         name = (EditText)findViewById(R.id.nameText);
         birth = (TextView)findViewById(R.id.birthText);
         job = (EditText)findViewById(R.id.jobText);
-        school = (EditText)findViewById(R.id.schoolText);
+        //school = (EditText)findViewById(R.id.schoolText);
 
         calendar = Calendar.getInstance();
         selectGender = (RadioGroup)findViewById(R.id.genderGroup);
@@ -108,21 +109,25 @@ public class EnrollDataActivity extends AppCompatActivity {
     View.OnClickListener enrollData = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            RestRequestHelper restRequestHelper = RestRequestHelper.newInstance();
-            restRequestHelper.enrollUser(name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level, new Callback<Integer>() {
-                @Override
-                public void success(Integer integer, Response response) {
-                    System.out.println(integer);
-                    PersonalPreference personalPreference = new PersonalPreference(EnrollDataActivity.this);
-                    personalPreference.setData(integer,name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level);
-                }
+            if(name.getText().toString().isEmpty() || birth.getText().toString().isEmpty() || job.getText().toString().isEmpty()){
+                Toast.makeText(getApplicationContext(), "Insert the value(name, birth or job )", Toast.LENGTH_LONG).show();
+            } else {
+                RestRequestHelper restRequestHelper = RestRequestHelper.newInstance();
+                restRequestHelper.enrollUser(name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level, new Callback<Integer>() {
+                    @Override
+                    public void success(Integer integer, Response response) {
+                        System.out.println(integer);
+                        PersonalPreference personalPreference = new PersonalPreference(EnrollDataActivity.this);
+                        personalPreference.setData(integer, name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level);
+                    }
 
-                @Override
-                public void failure(RetrofitError error) {
-                    error.printStackTrace();
-                }
-            });
-            finish();
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                    }
+                });
+                finish();
+            }
         }
     };
 }

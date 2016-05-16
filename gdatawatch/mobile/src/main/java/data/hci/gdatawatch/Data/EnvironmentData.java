@@ -1,5 +1,7 @@
 package data.hci.gdatawatch.Data;
 
+import android.util.Log;
+
 /**
  * Created by user on 2016-03-17.
  *
@@ -23,8 +25,8 @@ public class EnvironmentData {
     private static double lat;// -90 ~ 90
     private static double lng; // -180 ~ 180
 
-    private static int actionType = -1; // unknown
-    private static int actionConfidence;
+    private static int actionType = 4; // unknown
+    private static int actionConfidence = 0;
 
     public void setID(int id){ uid=id;  }
     public void setAccel(double x, double y, double z){
@@ -52,8 +54,9 @@ public class EnvironmentData {
         String data = "uid=" + uid + "&lat=" + lat + "&lng=" + lng
                 + "&gyroX=" + gyroX + "&gyroY=" + gyroY + "&gyroZ=" + gyroZ
                 + "&accelX=" + accelX + "&accelY=" + accelY + "&accelZ="
-                + accelZ+"&type="+actionType+"&confidence="+actionConfidence;
+                + accelZ+"&activityType="+actionType+"&activityConfidence="+actionConfidence;
 
+        Log.d("Activity type log ", actionType+"");
         return data;
     }
 }

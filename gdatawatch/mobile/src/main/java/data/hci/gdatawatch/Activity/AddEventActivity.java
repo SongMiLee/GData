@@ -44,12 +44,8 @@ public class AddEventActivity extends AppCompatActivity {
     TextView startDate, startTime, endDate, endTime;
     Button insert;
     Calendar toCalendar, fromCalendar;
-
     RestRequestHelper restRequestHelper;
-
-
     GoogleAccountCredential credential;
-    private final String SCOPE="https://www.googleapis.com/auth/calendar";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +57,7 @@ public class AddEventActivity extends AppCompatActivity {
         credential.setSelectedAccountName(new AuthPreferences(getApplicationContext()).getUser());
 
         restRequestHelper = RestRequestHelper.newInstance();
+
         init();
     }
 

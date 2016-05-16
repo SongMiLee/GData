@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">gdatawatch</string>
-    <string name="str_location">MyLoc</string>
+    <string name="str_location_on">Start</string>
+    <string name="str_location_off">Stop</string>
     <string name="server_client_id">1085283623715-badn7e6dan872ehoqptve9qog6olge65.apps.googleusercontent.com</string>
+    <string name="blank"></string>
 </resources>

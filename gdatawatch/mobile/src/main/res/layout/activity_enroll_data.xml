@@ -32,7 +32,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textSize="15pt"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_weight="0.8"
             android:hint="YYYY-MM-DD"
             android:id="@+id/birthText" />
@@ -107,7 +107,7 @@
 
     </TableRow>
 
-    <TableRow>
+    <!--<TableRow>
         <TextView
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
@@ -120,7 +120,7 @@
             android:id="@+id/schoolText"
             android:layout_weight="0.8" />
 
-    </TableRow>
+    </TableRow> -->
 
     <TableRow>
         <Button

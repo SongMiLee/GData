@@ -9,7 +9,6 @@ public class StaticVariable {
     public static final String BROADCAST_GYRO ="data.hci.gdata.gyro";
     public static final String BROADCAST_ACCEL ="data.hci.gdata.accel";
     public static final String BROADCAST_ACTION = "data.hci.action";
-    public static final String BROADCAST_TIME = "data.hci.time";
 
     public static final int REQUEST_PICK_ACCOUNT = 1000;
     public static final int REQUEST_AUTHORIZATION = 2000;

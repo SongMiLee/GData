@@ -19,6 +19,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:layout_weight="0.8"
+            android:maxLength="@integer/text_length_calendar"
             android:id="@+id/event_name"
             />
 
@@ -37,6 +38,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:layout_weight="0.8"
+            android:maxLength="@integer/text_length_calendar"
             android:id="@+id/event_location"
             />
 
@@ -54,16 +56,18 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/select_start_date"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_weight="0.3"
-            android:text="Date Select"
+            android:hint="Date Select"
             />
 
         <TextView
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/select_start_time"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_weight="0.3"
-            android:text="Time Select"
+            android:hint="Time Select"
             />
 
     </TableRow>
@@ -80,16 +84,18 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/select_end_date"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_weight="0.3"
-            android:text="Date Select"
+            android:hint="Date Select"
             />
 
         <TextView
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/select_end_time"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_weight="0.3"
-            android:text="Time Select"
+            android:hint="Time Select"
             />
 
     </TableRow>
@@ -106,6 +112,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/event_person"
+            android:maxLength="@integer/text_length_calendar"
             android:layout_weight="0.8"
             />
     </TableRow>

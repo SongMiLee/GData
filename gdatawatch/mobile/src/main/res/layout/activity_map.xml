@@ -15,17 +15,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id ="@+id/btn_loc"
-        android:text="@string/str_location"
+        android:text="@string/str_location_on"
         android:layout_alignParentBottom="true" />
 
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recommend"
-        android:id="@+id/btn_recommend"
-        android:layout_alignTop="@+id/btn_loc"
-        android:layout_toEndOf="@+id/btn_loc" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,8 +52,8 @@
         android:layout_height="wrap_content"
         android:text="Calendar"
         android:id="@+id/btn_calendar"
-        android:layout_alignTop="@+id/btn_recommend"
-        android:layout_toEndOf="@+id/btn_recommend" />
+        android:layout_alignTop="@+id/btn_loc"
+        android:layout_toEndOf="@+id/btn_loc" />
 
     <TextView
         android:layout_width="wrap_content"

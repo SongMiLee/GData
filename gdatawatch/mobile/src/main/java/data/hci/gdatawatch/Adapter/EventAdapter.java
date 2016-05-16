@@ -29,6 +29,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         }
     }
 
+    public EventAdapter(String eventName, String eventPlace, String eventStart, String eventEnd, String eventPerson){
+        items = new ArrayList<EventItem>();
+        EventItem item = new EventItem(eventName, eventPlace, eventStart, eventEnd, eventPerson);
+        items.add(item);
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -40,17 +46,21 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {      holder.event.setText(items.get(position).getEvent());   }
+    public void onBindViewHolder(ViewHolder holder, int position) {      holder.eventName.setText(items.get(position).getEventName());   }
 
     @Override
     public int getItemCount() {     return items.size();   }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        TextView event;
+        TextView eventName, eventPlace, eventStart, eventEnd, eventPerson;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            event = (TextView)itemView.findViewById(R.id.calendar_event_text);
+            eventName = (TextView)itemView.findViewById(R.id.calendar_event_text);
+            eventPlace = (TextView)itemView.findViewById(R.id.calendar_event_location);
+            eventStart = (TextView)itemView.findViewById(R.id.calendar_event_start);
+            eventEnd = (TextView)itemView.findViewById(R.id.calendar_event_end);
+            eventPerson = (TextView)itemView.findViewById(R.id.calendar_event_person);
         }
     }
 }

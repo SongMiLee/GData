@@ -51,8 +51,6 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".Activity.RecommendActivity" >
-        </activity>
         <activity android:name=".Activity.CalendarActivity" >
         </activity>
 

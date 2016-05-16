@@ -188,7 +188,7 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d("request code", requestCode+"");
+        Log.d("request code", requestCode + "");
         switch (requestCode){
             case StaticVariable.REQUEST_AUTHORIZATION://승인이 된 account의 토큰 요청
                 if(resultCode == RESULT_OK){
@@ -219,6 +219,17 @@ public class CalendarActivity extends AppCompatActivity {
             @Override
             public void run() {
                 EventAdapter adapter = new EventAdapter(data);
+                recyclerView.setAdapter(adapter);
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    public void addData(final String eventName, final String eventPlace, final String eventStart, final String eventEnd, final String eventPerson){
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                EventAdapter adapter = new EventAdapter(eventName, eventPlace, eventStart, eventEnd, eventPerson);
                 recyclerView.setAdapter(adapter);
                 progressBar.setVisibility(View.INVISIBLE);
             }
@@ -286,17 +297,19 @@ public class CalendarActivity extends AppCompatActivity {
             List<String> eventStrings = new ArrayList<String>();
 
             Events events = service.events().list("primary")
+                    .setOrderBy("startTime")//이벤트 시작 순서
+                    .setSingleEvents(true)
                     .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
 
             List<Event> items = events.getItems();//캘린더 이벤트 집합
             for(Event event : items){
                 DateTime start = event.getStart().getDateTime();
-                if(start == null){
-                    start = event.getStart().getDate();
-                }
+                DateTime end = event.getEnd().getDateTime();
+                if(start == null){   start = event.getStart().getDate();  }
+                if(end == null){    end = event.getEnd().getDate(); }
 
-                Log.d("event String", event.getStart()+" "+event.getEnd().getDateTime()); //etag는 캘린더 이벤트 생성 시 항상 생성
-                eventStrings.add(String.format("%s (%s)", event.getSummary(), start));
+                Log.d("event String", event.getStart()+" "+event.getEnd().getDateTime()); 
+                eventStrings.add(String.format("%s (%s) ~ (%s)", event.getSummary(), start, end));
             }
 
             addData(eventStrings);

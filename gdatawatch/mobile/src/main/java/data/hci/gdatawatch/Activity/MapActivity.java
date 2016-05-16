@@ -59,16 +59,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     GoogleApiClient googleApiClient;
 
-    Button myLoc, recommendBtn, calendarBtn;
+    Button myLoc, calendarBtn;
     ProgressBar progressBar;
     Boolean requestMyLoc = false;
 
-    static TextView textview;
-    TextView gyroTextView;
-    TextView accelTextView;
-
-    //시간관련 변수
-    static TextView dateTextView;
+    static TextView weatherTextview, dateTextView;
+    TextView gyroTextView, accelTextView;
 
     //스레드
     EnvironmentData ed;
@@ -156,17 +152,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     protected void initUI() {
         progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
 
-        //추천 장소 목록 표시
-        recommendBtn = (Button) findViewById(R.id.btn_recommend);
-        recommendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), RecommendActivity.class);
-                intent.putExtra("Latitude", latitude);
-                intent.putExtra("Longitude", longitude);
-                startActivity(intent);//RecommendActivity를 호출
-            }
-        });
         myLoc = (Button) findViewById(R.id.btn_loc);
         myLoc.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,6 +166,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     startService(new Intent(getApplicationContext(), SService.class));
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
                     new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
+
+                    myLoc.setText(R.string.str_location_off);
                 } else {
                     mMap.clear();
                     stopService(new Intent(getApplicationContext(), GpsService.class));
@@ -188,8 +175,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     stopService((new Intent(getApplicationContext(), AccelService.class)));
                     stopService(new Intent(getApplicationContext(), SendDataService.class));
                     stopService(new Intent(getApplicationContext(), SService.class));
-                }
 
+                    myLoc.setText(R.string.str_location_on);
+                }
             }
         });
 
@@ -202,7 +190,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             }
         });
 
-        textview = (TextView) findViewById(R.id.tv_temp); // 기상청
+        weatherTextview = (TextView) findViewById(R.id.tv_temp); // 기상청
         gyroTextView = (TextView) findViewById(R.id.tv_gyro);        //자이로 텍스트뷰 지정
         accelTextView = (TextView) findViewById(R.id.tv_accel); //가속도
 
@@ -352,7 +340,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     protected void onPause() {     super.onPause();   }
 
-    public static void setXMLText(String text) {  textview.setText(text);   }
+    public static void setXMLText(String text) {  weatherTextview.setText(text);   }
 
     public static void setTimeText(String text) { dateTextView.setText(text); }
 
@@ -379,7 +367,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 else{
                     Log.d("Map Activity", "GPS Permission denied");
                     myLoc.setClickable(false);
-                    recommendBtn.setClickable(false);
                 }
 
                 break;
