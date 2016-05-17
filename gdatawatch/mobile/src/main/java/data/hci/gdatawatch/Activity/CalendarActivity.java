@@ -48,13 +48,14 @@ public class CalendarActivity extends AppCompatActivity {
 
     GoogleAccountCredential credential;
 
-    Button invalidateBtn, addEvent;
+    Button addEvent;
     private final String SCOPE="https://www.googleapis.com/auth/calendar";
 
     RecyclerView recyclerView;
     LinearLayoutManager layoutManager;
     ProgressBar progressBar;
     Handler handler;
+    EventAdapter adapter;
 
 
     @Override
@@ -76,15 +77,6 @@ public class CalendarActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         progressBar = (ProgressBar)findViewById(R.id.progressBar_calendar); //이벤트 아이템 뷰가 나타나기 전까지의 프로그래스 바
-
-        invalidateBtn = (Button)findViewById(R.id.btn_invalidate);
-        invalidateBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                invalidateToken();
-                finish();
-            }
-        });
 
         addEvent = (Button)findViewById(R.id.add_event_button);
         addEvent.setOnClickListener(new View.OnClickListener() {
@@ -214,22 +206,14 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
-    public void addData(final List<String> data){
+    public void addData(final ArrayList<String>eventName, final ArrayList<String>eventPlace, final ArrayList<String>eventStart, final ArrayList<String>eventEnd, final ArrayList<String>eventPerson){
         handler.post(new Runnable() {
             @Override
             public void run() {
-                EventAdapter adapter = new EventAdapter(data);
-                recyclerView.setAdapter(adapter);
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
-    }
-
-    public void addData(final String eventName, final String eventPlace, final String eventStart, final String eventEnd, final String eventPerson){
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                EventAdapter adapter = new EventAdapter(eventName, eventPlace, eventStart, eventEnd, eventPerson);
+                adapter = new EventAdapter();
+                for(int i = 0; i<eventStart.size();i++){
+                    adapter.addItems(eventName.get(i), eventPlace.get(i), eventStart.get(i), eventEnd.get(i), eventPerson.get(i));
+                }
                 recyclerView.setAdapter(adapter);
                 progressBar.setVisibility(View.INVISIBLE);
             }
@@ -302,17 +286,32 @@ public class CalendarActivity extends AppCompatActivity {
                     .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
 
             List<Event> items = events.getItems();//캘린더 이벤트 집합
+
+            ArrayList<String> name = new ArrayList<String>();
+            ArrayList<String> place = new ArrayList<String>();
+            ArrayList<String> startDate = new ArrayList<String>();
+            ArrayList<String> endDate = new ArrayList<String>();
+            ArrayList<String> person = new ArrayList<String>();
+
             for(Event event : items){
                 DateTime start = event.getStart().getDateTime();
                 DateTime end = event.getEnd().getDateTime();
+                String eventName = event.getSummary();
+                String eventPlace = event.getLocation();
+                String eventPerson = event.getDescription();
+
+                if(eventName == null) { eventName = "no event name"; }
+                if(eventPlace == null ){ eventPlace = "no place"; }
+                if(eventPerson == null || eventPerson.equals("person=")) { eventPerson = "no person"; }
                 if(start == null){   start = event.getStart().getDate();  }
                 if(end == null){    end = event.getEnd().getDate(); }
 
-                Log.d("event String", event.getStart()+" "+event.getEnd().getDateTime()); 
+                Log.d("event String", eventName+" "+eventPlace+" "+start.toString()+" "+end.toString()+" "+eventPerson);
+
+                name.add(eventName); place.add(eventPlace); startDate.add(start.toString()); endDate.add(end.toString()); person.add(eventPerson);
                 eventStrings.add(String.format("%s (%s) ~ (%s)", event.getSummary(), start, end));
             }
-
-            addData(eventStrings);
+            addData(name, place, startDate, endDate, person);
             return eventStrings;//모든 이벤트 내역을 돌려준다.
         }
     }

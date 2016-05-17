@@ -13,16 +13,7 @@
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btn_invalidate" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Invalidate Button"
-        android:id="@+id/btn_invalidate"
-        android:layout_gravity="bottom"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
+        android:layout_above="@+id/add_event_button" />
 
 
     <ProgressBar
@@ -37,7 +28,7 @@
         android:layout_height="wrap_content"
         android:text="Add Event"
         android:id="@+id/add_event_button"
-        android:layout_below="@+id/calendar_event_list"
-        android:layout_alignStart="@+id/progressBar_calendar" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

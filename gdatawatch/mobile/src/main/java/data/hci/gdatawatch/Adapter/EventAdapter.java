@@ -16,21 +16,12 @@ import data.hci.gdatawatch.R;
  */
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
     List<EventItem> items;
-    List<String> raw;
 
-    public EventAdapter(List<String> event){
-        raw = event;
+    public EventAdapter(){
         items = new ArrayList<EventItem>();
-        EventItem[] item = new EventItem[raw.size()];
-
-        for(int i=0; i<raw.size(); i++){
-            item[i] = new EventItem(raw.get(i));
-            items.add(item[i]);
-        }
     }
 
-    public EventAdapter(String eventName, String eventPlace, String eventStart, String eventEnd, String eventPerson){
-        items = new ArrayList<EventItem>();
+    public void addItems(String eventName, String eventPlace, String eventStart, String eventEnd, String eventPerson){
         EventItem item = new EventItem(eventName, eventPlace, eventStart, eventEnd, eventPerson);
         items.add(item);
     }
@@ -46,7 +37,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {      holder.eventName.setText(items.get(position).getEventName());   }
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.eventName.setText(items.get(position).getEventName());
+        holder.eventPlace.setText(items.get(position).getEventPlace());
+        holder.eventStart.setText(items.get(position).getEventStart());
+        holder.eventEnd.setText(items.get(position).getEventEnd());
+        holder.eventPerson.setText(items.get(position).getEventPerson());
+    }
 
     @Override
     public int getItemCount() {     return items.size();   }

@@ -12,10 +12,6 @@ public class EventItem {
     public String getEventEnd(){    return  eventEnd; }
     public String getEventPerson(){     return eventPerson; }
 
-    public EventItem(String str){
-        eventName = str;
-    }
-
     public EventItem(String name, String place, String start, String end, String person){
         eventName = name;
         eventPlace = place;
