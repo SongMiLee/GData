@@ -6,7 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import data.hci.gdatawatch.R;
@@ -22,6 +25,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     }
 
     public void addItems(String eventName, String eventPlace, String eventStart, String eventEnd, String eventPerson){
+        SimpleDateFormat init = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        SimpleDateFormat out = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        try {
+
+            Date startTemp = init.parse(eventStart);
+            Date endTemp = init.parse(eventEnd);
+
+            eventStart = out.format(startTemp);
+            eventEnd = out.format(endTemp);
+
+        } catch (ParseException e) {
+           // e.printStackTrace();
+        }
         EventItem item = new EventItem(eventName, eventPlace, eventStart, eventEnd, eventPerson);
         items.add(item);
     }

@@ -212,6 +212,7 @@ public class CalendarActivity extends AppCompatActivity {
             public void run() {
                 adapter = new EventAdapter();
                 for(int i = 0; i<eventStart.size();i++){
+
                     adapter.addItems(eventName.get(i), eventPlace.get(i), eventStart.get(i), eventEnd.get(i), eventPerson.get(i));
                 }
                 recyclerView.setAdapter(adapter);
@@ -302,13 +303,18 @@ public class CalendarActivity extends AppCompatActivity {
 
                 if(eventName == null) { eventName = "no event name"; }
                 if(eventPlace == null ){ eventPlace = "no place"; }
-                if(eventPerson == null || eventPerson.equals("person=")) { eventPerson = "no person"; }
+                if(eventPerson == null || eventPerson.equals("person="))
+                { eventPerson = "no person"; } else if(eventPerson.split("=")[0].equals("person")){     eventPerson=eventPerson.split("=")[1];        }
                 if(start == null){   start = event.getStart().getDate();  }
                 if(end == null){    end = event.getEnd().getDate(); }
 
-                Log.d("event String", eventName+" "+eventPlace+" "+start.toString()+" "+end.toString()+" "+eventPerson);
+                Log.d("event String", eventName + " " + eventPlace + " " + start.toString() + " " + end.toString() + " " + eventPerson);
 
-                name.add(eventName); place.add(eventPlace); startDate.add(start.toString()); endDate.add(end.toString()); person.add(eventPerson);
+                name.add(eventName); place.add(eventPlace);
+                startDate.add(start.toString());
+                endDate.add(end.toString());
+                person.add(eventPerson);
+
                 eventStrings.add(String.format("%s (%s) ~ (%s)", event.getSummary(), start, end));
             }
             addData(name, place, startDate, endDate, person);
