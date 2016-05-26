@@ -8,7 +8,6 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,24 +19,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import data.hci.gdatawatch.Adapter.EventAdapter;
 import data.hci.gdatawatch.Global.StaticVariable;
+import data.hci.gdatawatch.Network.MakeRequestTask;
 import data.hci.gdatawatch.Oauth.AuthPreferences;
 import data.hci.gdatawatch.R;
 
@@ -51,11 +41,11 @@ public class CalendarActivity extends AppCompatActivity {
     Button addEvent;
     private final String SCOPE="https://www.googleapis.com/auth/calendar";
 
-    RecyclerView recyclerView;
+    static RecyclerView recyclerView;
     LinearLayoutManager layoutManager;
-    ProgressBar progressBar;
+    static ProgressBar progressBar;
     Handler handler;
-    EventAdapter adapter;
+    static EventAdapter adapter;
 
 
     @Override
@@ -135,6 +125,7 @@ public class CalendarActivity extends AppCompatActivity {
         //이미 기존의 값이 있다면 기존 값으로 credentail 초기화
         credential.setSelectedAccountName(authPreferences.getUser());
 
+        progressBar.setVisibility(View.VISIBLE);
         new MakeRequestTask(credential).execute();
     }
 
@@ -200,25 +191,21 @@ public class CalendarActivity extends AppCompatActivity {
                 break;
 
             case StaticVariable.CALENDAR_ACCEPT:
-                if(resultCode == RESULT_OK)
+                if(resultCode == RESULT_OK) {
+                    progressBar.setVisibility(View.VISIBLE);
                     new MakeRequestTask(credential).execute();
+                }
                 break;
         }
     }
 
-    public void addData(final ArrayList<String>eventName, final ArrayList<String>eventPlace, final ArrayList<String>eventStart, final ArrayList<String>eventEnd, final ArrayList<String>eventPerson){
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                adapter = new EventAdapter();
-                for(int i = 0; i<eventStart.size();i++){
+    public static void addData(final ArrayList<String>eventName, final ArrayList<String>eventPlace, final ArrayList<String>eventStart, final ArrayList<String>eventEnd, final ArrayList<String>eventPerson){
+        adapter = new EventAdapter();
+        for(int i=0; i<eventStart.size();i++)
+            adapter.addItems(eventName.get(i), eventPlace.get(i), eventStart.get(i), eventEnd.get(i), eventPerson.get(i));
 
-                    adapter.addItems(eventName.get(i), eventPlace.get(i), eventStart.get(i), eventEnd.get(i), eventPerson.get(i));
-                }
-                recyclerView.setAdapter(adapter);
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
+        recyclerView.setAdapter(adapter);
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
@@ -245,80 +232,4 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>>{
-        Calendar service = null;
-        Exception error = null;
-
-        public MakeRequestTask(GoogleAccountCredential credential){
-            progressBar.setVisibility(View.VISIBLE);
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            com.google.api.client.json.JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            service = new Calendar.Builder(transport, jsonFactory, credential)
-                    .setApplicationName(String.valueOf(R.string.app_name))
-                    .build();
-        }
-
-        @Override
-        protected List<String> doInBackground(Void... params) {
-            try{
-                Log.d("make request task", "execute");
-                return getDataFromApi();
-            }catch (UserRecoverableAuthIOException e){//다시 계정을 선택한다.
-                startActivityForResult(e.getIntent(), StaticVariable.REQUEST_PICK_ACCOUNT);
-                return null;
-            }catch (Exception e){
-                e.printStackTrace();
-                error = e;
-                e.printStackTrace();
-                cancel(true);
-                return null;
-            }
-        }
-
-        /**
-         * Google Calender로부터 이벤트를 받아오는 함수
-         * */
-        private List<String> getDataFromApi() throws IOException{
-            List<String> eventStrings = new ArrayList<String>();
-
-            Events events = service.events().list("primary")
-                    .setOrderBy("startTime")//이벤트 시작 순서
-                    .setSingleEvents(true)
-                    .execute();// Google로부터 내 캘린더 이벤트를 받아온다.
-
-            List<Event> items = events.getItems();//캘린더 이벤트 집합
-
-            ArrayList<String> name = new ArrayList<String>();
-            ArrayList<String> place = new ArrayList<String>();
-            ArrayList<String> startDate = new ArrayList<String>();
-            ArrayList<String> endDate = new ArrayList<String>();
-            ArrayList<String> person = new ArrayList<String>();
-
-            for(Event event : items){
-                DateTime start = event.getStart().getDateTime();
-                DateTime end = event.getEnd().getDateTime();
-                String eventName = event.getSummary();
-                String eventPlace = event.getLocation();
-                String eventPerson = event.getDescription();
-
-                if(eventName == null) { eventName = "no event name"; }
-                if(eventPlace == null ){ eventPlace = "no place"; }
-                if(eventPerson == null || eventPerson.equals("person="))
-                { eventPerson = "no person"; } else if(eventPerson.split("=")[0].equals("person")){     eventPerson=eventPerson.split("=")[1];        }
-                if(start == null){   start = event.getStart().getDate();  }
-                if(end == null){    end = event.getEnd().getDate(); }
-
-                Log.d("event String", eventName + " " + eventPlace + " " + start.toString() + " " + end.toString() + " " + eventPerson);
-
-                name.add(eventName); place.add(eventPlace);
-                startDate.add(start.toString());
-                endDate.add(end.toString());
-                person.add(eventPerson);
-
-                eventStrings.add(String.format("%s (%s) ~ (%s)", event.getSummary(), start, end));
-            }
-            addData(name, place, startDate, endDate, person);
-            return eventStrings;//모든 이벤트 내역을 돌려준다.
-        }
-    }
 }

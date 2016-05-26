@@ -4,4 +4,7 @@
     <string name="str_location_off">Stop</string>
     <string name="server_client_id">1085283623715-badn7e6dan872ehoqptve9qog6olge65.apps.googleusercontent.com</string>
     <string name="blank"></string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
