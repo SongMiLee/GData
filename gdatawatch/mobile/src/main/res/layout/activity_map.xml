@@ -20,6 +20,7 @@
 
 
     <TextView
+        android:background="@color/gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_date"
@@ -27,6 +28,7 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
+        android:background="@color/gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_temp"
@@ -34,6 +36,7 @@
         android:layout_alignParentEnd="true"/>
 
     <TextView
+        android:background="@color/gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_gyro"
@@ -56,6 +59,7 @@
         android:layout_toEndOf="@+id/btn_loc" />
 
     <TextView
+        android:background="@color/gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_accel"

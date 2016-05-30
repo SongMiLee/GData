@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 import data.hci.gdatawatch.Adapter.EventAdapter;
 import data.hci.gdatawatch.Global.StaticVariable;
-import data.hci.gdatawatch.Network.MakeRequestTask;
+import data.hci.gdatawatch.Network.CalendarEventRequestTask;
 import data.hci.gdatawatch.Oauth.AuthPreferences;
 import data.hci.gdatawatch.R;
 
@@ -126,7 +126,7 @@ public class CalendarActivity extends AppCompatActivity {
         credential.setSelectedAccountName(authPreferences.getUser());
 
         progressBar.setVisibility(View.VISIBLE);
-        new MakeRequestTask(credential).execute();
+        new CalendarEventRequestTask(credential).execute();
     }
 
     /**
@@ -193,7 +193,7 @@ public class CalendarActivity extends AppCompatActivity {
             case StaticVariable.CALENDAR_ACCEPT:
                 if(resultCode == RESULT_OK) {
                     progressBar.setVisibility(View.VISIBLE);
-                    new MakeRequestTask(credential).execute();
+                    new CalendarEventRequestTask(credential).execute();
                 }
                 break;
         }
@@ -201,6 +201,7 @@ public class CalendarActivity extends AppCompatActivity {
 
     public static void addData(final ArrayList<String>eventName, final ArrayList<String>eventPlace, final ArrayList<String>eventStart, final ArrayList<String>eventEnd, final ArrayList<String>eventPerson){
         adapter = new EventAdapter();
+
         for(int i=0; i<eventStart.size();i++)
             adapter.addItems(eventName.get(i), eventPlace.get(i), eventStart.get(i), eventEnd.get(i), eventPerson.get(i));
 

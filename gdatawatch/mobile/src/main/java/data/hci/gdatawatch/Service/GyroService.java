@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.util.Log;
 
 import data.hci.gdatawatch.Global.StaticVariable;
 
@@ -25,7 +26,7 @@ public class GyroService extends Service implements SensorEventListener {
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);   //센서 매니저 사용
         gyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-        mSensorManager.registerListener(this,gyroSensor,SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this,gyroSensor,SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
 
         return START_NOT_STICKY;
     }
@@ -56,8 +57,10 @@ public class GyroService extends Service implements SensorEventListener {
             broadcastIntent.putExtra("z", z);
 
             sendBroadcast(broadcastIntent);
+
         }
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

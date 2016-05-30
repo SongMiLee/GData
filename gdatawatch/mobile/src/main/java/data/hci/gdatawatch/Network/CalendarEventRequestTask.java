@@ -23,12 +23,12 @@ import data.hci.gdatawatch.R;
 /**
  * Created by user on 2016-05-26.
  */
-public class MakeRequestTask extends AsyncTask<Void, Void, ArrayList<ArrayList<String>>> {
+public class CalendarEventRequestTask extends AsyncTask<Void, Void, ArrayList<ArrayList<String>>> {
 
     Calendar service = null;
     Exception error = null;
 
-    public MakeRequestTask(GoogleAccountCredential credential){
+    public CalendarEventRequestTask(GoogleAccountCredential credential){
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         com.google.api.client.json.JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         service = new Calendar.Builder(transport, jsonFactory, credential)

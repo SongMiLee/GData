@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.util.Log;
 
 import data.hci.gdatawatch.Global.StaticVariable;
 
@@ -15,16 +16,18 @@ import data.hci.gdatawatch.Global.StaticVariable;
 public class AccelService extends Service implements SensorEventListener {
     SensorManager sensorManager;//센서 매니저
     Sensor accelSensor;//가속도 센서
+    Sensor gravitySensor;//중력 센서
 
-    public AccelService() {
-    }
+    public AccelService() {   }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 
-        sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);//센서 등록
+        sensorManager.registerListener(this, gravitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_UI, SensorManager.SENSOR_DELAY_UI);//센서 등록
 
         return START_NOT_STICKY;
     }

@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 import data.hci.gdatawatch.Data.EnvironmentData;
 import data.hci.gdatawatch.Data.PersonalPreference;
@@ -58,6 +59,7 @@ public class SService extends Service {
                 @Override
                 public void run() {
                     try {
+                        Log.d("SKSERVER", ed.getData());
                         new EnvironmentPostTask().execute(ed.getData());
                         //Thread.sleep(1000 * 60);
                     } catch (Exception e) {

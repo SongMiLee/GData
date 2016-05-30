@@ -69,7 +69,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     //스레드
     EnvironmentData ed;
 
-    double latitude = 30, longitude = 100;
+    double latitude = 37.5652894, longitude = 126.849467;
 
     private IntentFilter intentFilter;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
