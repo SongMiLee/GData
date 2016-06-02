@@ -217,6 +217,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onStop();
     }
 
+    /**
+     * Activity 종료
+     * 모든 서비스 종료
+     * */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -353,6 +357,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
+    /**
+     * GPS 권한 설정
+     * */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -371,6 +378,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
                 break;
         }
+    }
+
+    /**
+     * 뒤로 가기 키를 눌렀을 때 홈 버튼 처럼 동작하게 만드는 함수
+     * */
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }
 
