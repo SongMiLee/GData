@@ -113,10 +113,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        PersonalPreference pf = new PersonalPreference(this);
-        if(!pf.isData())
-            startActivity(new Intent(this,EnrollDataActivity.class));
-
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -380,12 +376,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
-    /**
-     * 뒤로 가기 키를 눌렀을 때 홈 버튼 처럼 동작하게 만드는 함수
-     * */
-    @Override
-    public void onBackPressed() {
-        moveTaskToBack(true);
-    }
+
 }
 

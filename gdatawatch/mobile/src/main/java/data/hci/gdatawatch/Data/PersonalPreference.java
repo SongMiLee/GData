@@ -9,7 +9,7 @@ import android.util.Log;
  */
 public class PersonalPreference {
     private static SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
+    private static SharedPreferences.Editor editor;
 
     //생성자
     public PersonalPreference(Context context){
@@ -18,7 +18,7 @@ public class PersonalPreference {
     }
 
     //파일에 해당 데이터를 작성
-    public void setData(int id,String name, String date, int gender, String job, int level){
+    public static void setData(int id,String name, String date, int gender, String job, int level){
         editor.putInt("id", id);
         editor.putString("name", name);
         editor.putString("date", date);
@@ -29,8 +29,8 @@ public class PersonalPreference {
         editor.commit();
     }
 
-    public boolean isData(){
-        Log.d("id", String.valueOf(sharedPreferences.getInt("id", -1)));
+    public static boolean isData(){
+       Log.d("name", sharedPreferences.getString("name", "tmp"));
         return sharedPreferences.contains("name");
     }
 

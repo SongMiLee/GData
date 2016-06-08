@@ -26,11 +26,6 @@
         android:theme="@style/AppTheme"
         tools:replace="theme, icon, label" >
         <activity android:name=".Activity.MapActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <meta-data
@@ -73,6 +68,16 @@
         </service>
 
         <activity android:name=".Activity.AddEventActivity" >
+        </activity>
+
+        <activity
+            android:name=".Activity.PageActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 
