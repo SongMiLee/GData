@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +27,8 @@ import retrofit.client.Response;
 
 
 public class EnrollDataActivity extends AppCompatActivity {
-    EditText name, job, school;
+    EditText name;
+    Spinner job;
     RadioGroup selectLevel, selectGender;
 
     TextView birth;
@@ -34,6 +37,7 @@ public class EnrollDataActivity extends AppCompatActivity {
     int gender, level;
 
     Button Enroll;
+    String jobStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +48,15 @@ public class EnrollDataActivity extends AppCompatActivity {
     }
 
     protected void init(){
+        PersonalPreference pf = new PersonalPreference(this);
+        if(pf.isData()) {//사용자 데이터가 있으면
+            startActivity(new Intent(getApplicationContext(), PageActivity.class));//메인 화면 띄우고
+            finish(); // 가입 화면 종료
+        }
+
         name = (EditText)findViewById(R.id.nameText);
         birth = (TextView)findViewById(R.id.birthText);
-        job = (EditText)findViewById(R.id.jobText);
-        //school = (EditText)findViewById(R.id.schoolText);
+        job = (Spinner)findViewById(R.id.jobText);
 
         calendar = Calendar.getInstance();
         selectGender = (RadioGroup)findViewById(R.id.genderGroup);
@@ -81,7 +90,7 @@ public class EnrollDataActivity extends AppCompatActivity {
         selectLevel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
+                switch (checkedId) {
                     case R.id.upper:
                         level = 2;
                         break;
@@ -92,6 +101,18 @@ public class EnrollDataActivity extends AppCompatActivity {
             }
         });
 
+        job.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                jobStr = parent.getItemAtPosition(position).toString();
+                Log.d("job list", jobStr);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {    }
+        });
+
+        //enroll 버튼 클릭시
         Enroll = (Button)findViewById(R.id.enrollBtn);
         Enroll.setOnClickListener(enrollData);
     }
@@ -110,16 +131,16 @@ public class EnrollDataActivity extends AppCompatActivity {
     View.OnClickListener enrollData = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(name.getText().toString().isEmpty() || birth.getText().toString().isEmpty() || job.getText().toString().isEmpty()){
+            if(name.getText().toString().isEmpty() || birth.getText().toString().isEmpty() || jobStr.isEmpty()){
                 Toast.makeText(getApplicationContext(), "Insert the value(name, birth or job )", Toast.LENGTH_LONG).show();
             } else {
                 RestRequestHelper restRequestHelper = RestRequestHelper.newInstance();
-                restRequestHelper.enrollUser(name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level, new Callback<Integer>() {
+                restRequestHelper.enrollUser(name.getText().toString(), birth.getText().toString(), gender, jobStr, level, new Callback<Integer>() {
                     @Override
                     public void success(Integer integer, Response response) {
                         System.out.println(integer);
                         PersonalPreference personalPreference = new PersonalPreference(EnrollDataActivity.this);
-                        personalPreference.setData(integer, name.getText().toString(), birth.getText().toString(), gender, job.getText().toString(), level);
+                        personalPreference.setData(integer, name.getText().toString(), birth.getText().toString(), gender, jobStr, level);
                     }
 
                     @Override
@@ -127,6 +148,7 @@ public class EnrollDataActivity extends AppCompatActivity {
                         error.printStackTrace();
                     }
                 });
+                startActivity(new Intent(getApplicationContext(), PageActivity.class));//뷰페이저 화면으로 이동
                 finish();
             }
         }

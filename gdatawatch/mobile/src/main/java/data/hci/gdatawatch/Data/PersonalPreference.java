@@ -30,7 +30,7 @@ public class PersonalPreference {
     }
 
     public static boolean isData(){
-       Log.d("name", sharedPreferences.getString("name", "tmp"));
+        Log.d("name", sharedPreferences.getString("name", "tmp"));
         return sharedPreferences.contains("name");
     }
 

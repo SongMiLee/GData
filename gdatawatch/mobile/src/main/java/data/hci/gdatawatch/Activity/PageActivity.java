@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import data.hci.gdatawatch.Adapter.PagerAdapter;
-import data.hci.gdatawatch.Data.PersonalPreference;
 import data.hci.gdatawatch.R;
 
 public class PageActivity extends AppCompatActivity {
@@ -38,10 +37,6 @@ public class PageActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        PersonalPreference pf = new PersonalPreference(this);
-        if(!pf.isData())
-            startActivity(new Intent(getApplicationContext(), EnrollDataActivity.class));
 
     }
 
