@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import data.hci.gdatawatch.Activity.MapActivity;
+import data.hci.gdatawatch.Data.EnvironmentData;
 
 /**
  * Created by user on 2016-03-18.
@@ -62,6 +63,8 @@ public class GetXMLTask extends AsyncTask<String, Void, Document> {
         NodeList rainList = fstElmnt.getElementsByTagName("r06");
         s += "강우량 = "+  rainList.item(0).getChildNodes().item(0).getNodeValue() +"\n";
 
+        EnvironmentData.setWeather(Double.parseDouble(nameList.item(0).getNodeValue()), Double.parseDouble(websiteList.item(0).getChildNodes().item(0).getNodeValue()),
+                Double.parseDouble(rainList.item(0).getChildNodes().item(0).getNodeValue()));
 
         MapActivity.setXMLText(s);
 

@@ -1,6 +1,7 @@
 package data.hci.gdatawatch.Activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,16 +17,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -46,6 +52,7 @@ import data.hci.gdatawatch.Service.AccelService;
 import data.hci.gdatawatch.Service.DetectActivityIntentService;
 import data.hci.gdatawatch.Service.GpsService;
 import data.hci.gdatawatch.Service.GyroService;
+import data.hci.gdatawatch.Service.PlaceService;
 import data.hci.gdatawatch.Service.SService;
 import data.hci.gdatawatch.Service.SendDataService;
 import data.hci.gdatawatch.Thread.TimeRefresh;
@@ -160,6 +167,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     startService((new Intent(getApplicationContext(), AccelService.class)));
                     startService(new Intent(getApplicationContext(), SendDataService.class));
                     startService(new Intent(getApplicationContext(), SService.class));
+                    startService(new Intent(getApplicationContext(), PlaceService.class));
                     progressBar.setVisibility(View.VISIBLE);//프로그래스 바 화면에 표시
                     new GetXMLTask().execute("http://www.kma.go.kr/wid/queryDFS.jsp?gridx=" + latitude + "&gridy=" + longitude);
 
@@ -169,9 +177,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     stopService(new Intent(getApplicationContext(), GpsService.class));
                     stopService((new Intent(getApplicationContext(), GyroService.class)));
                     stopService((new Intent(getApplicationContext(), AccelService.class)));
-                    stopService(new Intent(getApplicationContext(), SendDataService.class));
-                    stopService(new Intent(getApplicationContext(), SService.class));
-
+                   // stopService(new Intent(getApplicationContext(), SendDataService.class));
+                  //  stopService(new Intent(getApplicationContext(), SService.class));
+                    stopService(new Intent(getApplicationContext(), PlaceService.class));
                     myLoc.setText(R.string.str_location_on);
                 }
             }

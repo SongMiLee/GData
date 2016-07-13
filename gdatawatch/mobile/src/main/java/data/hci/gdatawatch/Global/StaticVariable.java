@@ -15,6 +15,7 @@ public class StaticVariable {
     public static final int ACCOUNT_PERMISSION = 3000;
     public static final int GPS_PERMISSION = 4000;
     public static final int CALENDAR_ACCEPT = 5000;
+    public static final int PLACE_PICKER=6000;
 
     //permission variable
     public static final int REQ_PERMISSION_GPS = 200;

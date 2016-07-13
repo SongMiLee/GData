@@ -56,6 +56,14 @@ public class RestRequestHelper {
             @Field("data") String data,
             Callback<Integer>sitCallback
         );
+
+        @FormUrlEncoded
+        @POST("/location")
+        void getPlace(
+                @Field("lat") double lat,
+                @Field("lng") double lng,
+                Callback<String> placeCallback
+        );
     }
 
     public void enrollUser(String name, String birth, int gender, String job, int level, Callback<Integer> euCallback){
@@ -68,5 +76,9 @@ public class RestRequestHelper {
 
     public void sitData(String data, Callback<Integer> sitCallback){
         restRequest.sitData(data, sitCallback);
+    }
+
+    public void getPlace(double lat, double lng, Callback<String> placeCallback){
+        restRequest.getPlace(lat, lng, placeCallback);
     }
 }

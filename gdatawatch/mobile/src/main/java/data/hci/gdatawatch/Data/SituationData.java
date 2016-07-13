@@ -35,13 +35,13 @@ public class SituationData {
     }
 
     public String getData(){
-        String result = "uid="+uid+"&eventPlace="+eventPlace+"&eventName="+eventName+"&eventStartYear="+eventStartYear+
+
+        if(eventPerson.isEmpty())
+            eventPerson="no people";
+
+        String result = "uid="+uid+"&eventName="+eventName+"&eventPlace="+eventPlace+"&eventPeople="+eventPerson+"&eventStartYear="+eventStartYear+
                 "&eventStartMonth="+eventStartMonth+"&eventStartDate="+eventStartDate+"&eventStartHour="+eventStartHour+"&eventStartMinute="+eventStartMinute+
                 "&eventEndYear="+eventEndYear+"&eventEndMonth="+eventEndMonth+"&eventEndDate="+eventEndDate+"&eventEndHour="+eventEndHour+"&eventEndMinute="+eventStartMinute;
-
-        //Person이 있을 경우만 추가
-        if(!eventPerson.isEmpty())
-            result+="&eventPerson="+eventPerson;
 
         return  result;
     }
